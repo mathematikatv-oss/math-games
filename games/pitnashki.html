@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🔢 Пятнашки — Игра с разными уровнями</title>
+    <style>
+        :root {
+            --bg: #f5f0e6;
+            --tile-bg: #fef9f0;
+            --tile-border: #c9b896;
+            --tile-text: #3e2723;
+            --tile-empty: #e0d5c0;
+            --accent: #d4a017;
+            --board-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fdfaf3 0%, #f7f2e4 50%, #ede0cc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            padding: 15px;
+        }
+
+        .game-wrapper {
+            background: #fffef9;
+            border-radius: 24px;
+            padding: 24px 20px;
+            box-shadow: 0 0 0 3px #c9b896, 0 0 0 7px #e0d5c0, var(--board-shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            max-width: 550px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            color: #3e2723;
+            letter-spacing: 3px;
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 0.8rem;
+            color: #999;
+            font-style: italic;
+            letter-spacing: 2px;
+            margin-top: -10px;
+        }
+
+        /* Выбор сложности */
+        .difficulty-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .diff-btn {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: 'Georgia', serif;
+            letter-spacing: 1px;
+            border: 2px solid #c9b896;
+            background: #fef9f0;
+            color: #3e2723;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        }
+        .diff-btn:hover {
+            background: #f5ecd7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .diff-btn.active {
+            background: #3e2723;
+            color: #ffd700;
+            border-color: #3e2723;
+            box-shadow: 0 0 16px rgba(212, 160, 23, 0.4);
+        }
+
+        /* Доска */
+        .board-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1 / 1;
+        }
+        .board {
+            display: grid;
+            gap: 6px;
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            background: #c9b896;
+            border-radius: 16px;
+            box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .tile {
+            background: linear-gradient(145deg, #fef9f0, #f5ecd7);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.4rem, 5vw, 2.4rem);
+            font-weight: bold;
+            color: #3e2723;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            user-select: none;
+            border: 2px solid #d4c5a9;
+            position: relative;
+        }
+        .tile:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+        }
+        .tile:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+        .tile.empty {
+            background: #e0d5c0;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.2);
+            cursor: default;
+            border: 2px dashed #b8a88a;
+        }
+        .tile.empty:hover {
+            transform: none;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+        .tile.win-highlight {
+            animation: winPulse 0.6s ease-in-out infinite;
+            border-color: #d4a017;
+        }
+        @keyframes winPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(212, 160, 23, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 22px rgba(212, 160, 23, 0.9);
+            }
+        }
+
+        /* Информация */
+        .info-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .info-box {
+            background: #3e2723;
+            color: #ffd700;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            border: 2px solid #6b4f12;
+            text-align: center;
+        }
+        .info-box span {
+            color: #fff;
+        }
+        .info-box.min-moves-box {
+            background: #2c1810;
+            color: #c9a96e;
+            border-color: #6b4f12;
+            font-size: 0.85rem;
+        }
+        .message-box {
+            text-align: center;
+            font-size: 1.1rem;
+            min-height: 28px;
+            color: #3e2723;
+            font-weight: bold;
+        }
+        .message-box .win-msg {
+            color: #b8860b;
+            animation: glow 1.5s ease-in-out infinite;
+        }
+        @keyframes glow {
+            0%,
+            100% {
+                text-shadow: 0 0 5px #ffd700;
+            }
+            50% {
+                text-shadow: 0 0 25px #ffd700, 0 0 40px #d4a017;
+            }
+        }
+
+        /* Кнопки */
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .game-btn {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: 'Georgia', serif;
+            letter-spacing: 2px;
+            border: 2px solid #8b6914;
+            background: linear-gradient(180deg, #d4a017, #b8860b);
+            color: #3e2723;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #6b4f12, 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .game-btn:hover {
+            background: linear-gradient(180deg, #f5e6c8, #d4a017);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #6b4f12, 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        .game-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #6b4f12, 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .game-btn.undo-btn {
+            background: linear-gradient(180deg, #c9a96e, #a0845c);
+        }
+        .game-btn.reset-btn {
+            background: linear-gradient(180deg, #3498db, #2471a3);
+            border-color: #1f618d;
+        }
+
+        @media (max-width: 400px) {
+            .game-wrapper {
+                padding: 16px 10px;
+                gap: 12px;
+            }
+            .board {
+                gap: 4px;
+                padding: 6px;
+            }
+            .tile {
+                border-radius: 7px;
+            }
+            .game-btn {
+                padding: 8px 14px;
+                font-size: 0.75rem;
+            }
+            .diff-btn {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-wrapper">
+    <h1>🔢 Пятнашки</h1>
+    <p class="subtitle">Расставь числа по порядку</p>
+
+    <div class="difficulty-row">
+        <button class="diff-btn" onclick="setDifficulty(2)">2×2</button>
+        <button class="diff-btn active" onclick="setDifficulty(3)">3×3</button>
+        <button class="diff-btn" onclick="setDifficulty(4)">4×4</button>
+        <button class="diff-btn" onclick="setDifficulty(5)">5×5</button>
+    </div>
+
+    <div class="board-container">
+        <div class="board" id="board"></div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-box">Ходы: <span id="moveCount">0</span></div>
+        <div class="info-box min-moves-box">🎯 Минимум: <span id="minMoves">?</span></div>
+    </div>
+
+    <div class="message-box" id="messageBox"></div>
+
+    <div class="btn-row">
+        <button class="game-btn undo-btn" onclick="undoMove()">↩ Отменить</button>
+        <button class="game-btn" onclick="shuffleBoard()">🔀 Перемешать</button>
+        <button class="game-btn reset-btn" onclick="resetBoard()">🔄 Начать сначала</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // --- Состояние ---
+        let gridSize = 3;
+        let tiles = [];
+        let emptyIndex = -1;
+        let moveCount = 0;
+        let moveHistory = [];
+        let gameWon = false;
+        let totalTiles = 0;
+        let initialTiles = []; // сохранённое начальное состояние после перемешивания
+
+        const boardEl = document.getElementById('board');
+        const moveCountEl = document.getElementById('moveCount');
+        const minMovesEl = document.getElementById('minMoves');
+        const messageBox = document.getElementById('messageBox');
+
+        // --- Минимальное количество ходов (оценка) ---
+        function estimateMinMoves() {
+            // Для пятнашек минимальное количество ходов неизвестно заранее,
+            // но мы можем показать нижнюю границу: сумма манхэттенских расстояний
+            if (gameWon) return 0;
+            let sum = 0;
+            for (let i = 0; i < totalTiles; i++) {
+                const value = tiles[i];
+                if (value === 0) continue;
+                const targetIndex = value - 1;
+                const currentRow = Math.floor(i / gridSize);
+                const currentCol = i % gridSize;
+                const targetRow = Math.floor(targetIndex / gridSize);
+                const targetCol = targetIndex % gridSize;
+                sum += Math.abs(currentRow - targetRow) + Math.abs(currentCol - targetCol);
+            }
+            return sum;
+        }
+
+        // --- Инициализация ---
+        function createSolvedBoard() {
+            totalTiles = gridSize * gridSize;
+            tiles = [];
+            for (let i = 1; i < totalTiles; i++) {
+                tiles.push(i);
+            }
+            tiles.push(0);
+            emptyIndex = totalTiles - 1;
+            moveCount = 0;
+            moveHistory = [];
+            gameWon = false;
+            initialTiles = [];
+            updateUI();
+            messageBox.innerHTML = '';
+        }
+
+        function setDifficulty(n) {
+            gridSize = n;
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                const size = parseInt(btn.textContent);
+                btn.classList.toggle('active', size === n);
+            });
+            createSolvedBoard();
+            shuffleBoard();
+        }
+
+        // --- Перемешивание ---
+        function shuffleBoard() {
+            createSolvedBoard();
+            const moves = gridSize * gridSize * 20;
+            let lastMove = -1;
+            for (let i = 0; i < moves; i++) {
+                const neighbors = getNeighbors(emptyIndex);
+                const filtered = neighbors.filter(n => n !== lastMove);
+                const pick = filtered[Math.floor(Math.random() * filtered.length)];
+                lastMove = emptyIndex;
+                swapTiles(emptyIndex, pick, false);
+                emptyIndex = pick;
+            }
+            moveCount = 0;
+            moveHistory = [];
+            gameWon = false;
+            // Сохраняем начальное состояние
+            initialTiles = [...tiles];
+            updateUI();
+            messageBox.innerHTML = '';
+        }
+
+        function resetBoard() {
+            if (initialTiles.length === 0) {
+                shuffleBoard();
+                return;
+            }
+            tiles = [...initialTiles];
+            emptyIndex = tiles.indexOf(0);
+            moveCount = 0;
+            moveHistory = [];
+            gameWon = false;
+            updateUI();
+            messageBox.innerHTML = '🔄 Игра сброшена к начальному состоянию';
+            setTimeout(() => {
+                if (!gameWon) messageBox.innerHTML = '';
+            }, 1800);
+        }
+
+        function getNeighbors(index) {
+            const row = Math.floor(index / gridSize);
+            const col = index % gridSize;
+            const neighbors = [];
+            if (row > 0) neighbors.push(index - gridSize);
+            if (row < gridSize - 1) neighbors.push(index + gridSize);
+            if (col > 0) neighbors.push(index - 1);
+            if (col < gridSize - 1) neighbors.push(index + 1);
+            return neighbors;
+        }
+
+        function swapTiles(i, j, record = true) {
+            [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+            if (record) {
+                moveHistory.push({ from: i, to: j });
+                moveCount++;
+            }
+        }
+
+        // --- Проверка победы ---
+        function checkWin() {
+            for (let i = 0; i < totalTiles - 1; i++) {
+                if (tiles[i] !== i + 1) return false;
+            }
+            return tiles[totalTiles - 1] === 0;
+        }
+
+        // --- Клик по плитке ---
+        function handleTileClick(index) {
+            if (gameWon) return;
+            if (tiles[index] === 0) return;
+
+            const neighbors = getNeighbors(emptyIndex);
+            if (!neighbors.includes(index)) return;
+
+            swapTiles(emptyIndex, index);
+            emptyIndex = index;
+
+            if (checkWin()) {
+                gameWon = true;
+                messageBox.innerHTML =
+                    '<span class="win-msg">🏆 Поздравляем! Вы собрали пятнашки за ' + moveCount + ' ' +
+                    pluralMoves(moveCount) + '!</span>';
+            }
+
+            updateUI();
+        }
+
+        function pluralMoves(n) {
+            const m10 = n % 10;
+            const m100 = n % 100;
+            if (m10 === 1 && m100 !== 11) return 'ход';
+            if ([2, 3, 4].includes(m10) && ![12, 13, 14].includes(m100)) return 'хода';
+            return 'ходов';
+        }
+
+        // --- Отмена хода ---
+        function undoMove() {
+            if (gameWon) return;
+            if (moveHistory.length === 0) return;
+            const last = moveHistory.pop();
+            swapTiles(last.to, last.from, false);
+            emptyIndex = last.from;
+            moveCount--;
+            updateUI();
+            messageBox.innerHTML = '↩ Ход отменён';
+            setTimeout(() => {
+                if (!gameWon) messageBox.innerHTML = '';
+            }, 1200);
+        }
+
+        // --- Рендеринг ---
+        function updateUI() {
+            boardEl.innerHTML = '';
+            moveCountEl.textContent = moveCount;
+            minMovesEl.textContent = estimateMinMoves();
+
+            boardEl.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+            boardEl.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+
+            tiles.forEach((value, index) => {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                if (value === 0) {
+                    tile.classList.add('empty');
+                } else {
+                    tile.textContent = value;
+                    if (gameWon) {
+                        tile.classList.add('win-highlight');
+                    }
+                }
+                tile.addEventListener('click', () => handleTileClick(index));
+                boardEl.appendChild(tile);
+            });
+        }
+
+        // --- Глобальные функции ---
+        window.setDifficulty = setDifficulty;
+        window.shuffleBoard = shuffleBoard;
+        window.resetBoard = resetBoard;
+        window.undoMove = undoMove;
+
+        // --- Старт ---
+        setDifficulty(3);
+    })();
+</script>
+</body>
+</html>

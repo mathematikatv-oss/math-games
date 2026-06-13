@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, minimum-scale=1.0">
+  <title>🐸 Лягушки-попрыгушки — Адаптивная версия</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #5a8f4a 0%, #3b5e2b 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', 'Comic Sans MS', 'Arial', sans-serif;
+      padding: 15px;
+      margin: 0;
+    }
+
+    .game-wrapper {
+      width: 100%;
+      max-width: 950px;
+      background: #7b4a2c;
+      background-image: radial-gradient(circle at 20% 30%, #a0724a, #5d3a1a);
+      border-radius: 50px;
+      padding: 20px 15px 25px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 2px 10px rgba(255, 255, 255, 0.25);
+      border: 4px solid #4a2c0f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffeb3b;
+      text-shadow: 3px 3px 0 #2e5c1a;
+      font-size: clamp(1.6rem, 5vw, 2.5rem);
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+      line-height: 1.2;
+    }
+
+    /* Адаптивный пруд — всегда в одну строку */
+    .pond {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+      gap: 0.8vw;
+      margin: 15px 0 10px;
+      padding: 15px 2vw;
+      background: #3b7a4b;
+      border-radius: 100px;
+      background-image: linear-gradient(to bottom, #4caf50, #2e7d32);
+      box-shadow: inset 0 10px 20px rgba(0, 0, 0, 0.5);
+      border: 3px solid #1b4d1b;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .lilypad {
+      aspect-ratio: 1 / 1;
+      width: clamp(45px, 10vw, 85px);
+      max-width: 85px;
+      min-width: 45px;
+      background: #4a7c3f;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: clamp(2rem, 6vw, 3.8rem);
+      box-shadow: 0 6px 0 #1f3b15, 0 8px 12px rgba(0, 0, 0, 0.5);
+      transition: all 0.15s ease;
+      cursor: pointer;
+      background: radial-gradient(circle at 30% 30%, #6f9e4b, #2e5a1c);
+      border: 3px solid #1e4013;
+      position: relative;
+      user-select: none;
+      line-height: 1;
+      transform: translateY(-4px);
+      flex-shrink: 0;
+    }
+
+    .lilypad:active {
+      transform: translateY(0px);
+      box-shadow: 0 3px 0 #1f3b15, 0 5px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .frog {
+      display: block;
+      filter: drop-shadow(2px 4px 3px rgba(0, 0, 0, 0.6));
+      transition: transform 0.1s ease;
+    }
+
+    /* Красная лягушка — используем того же персонажа, но с красным оттенком */
+    .frog-red {
+      filter: drop-shadow(2px 4px 3px rgba(0, 0, 0, 0.6)) hue-rotate(280deg) saturate(2.5) brightness(0.9);
+    }
+
+    .lilypad.empty {
+      cursor: default;
+      background: radial-gradient(circle at 40% 40%, #5a8f4a, #1f401a);
+      box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.5), 0 6px 0 #1f3b15;
+      border: 2px dashed #9acd32;
+      opacity: 0.9;
+    }
+
+    .lilypad.empty::before {
+      content: "💧";
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      opacity: 0.8;
+    }
+
+    .lilypad.selected {
+      transform: scale(1.08) translateY(-8px);
+      box-shadow: 0 10px 0 #1f3b15, 0 14px 20px rgba(0, 0, 0, 0.7);
+      border: 3px solid #ffeb3b;
+      background: radial-gradient(circle at 30% 30%, #86b84a, #3e6b24);
+      filter: brightness(1.2);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    button {
+      background: #e67e22;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 40px;
+      font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #9a5d1f, 0 6px 12px rgba(0, 0, 0, 0.4);
+      transition: 0.08s linear;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 2px solid #c0651f;
+      white-space: nowrap;
+    }
+
+    button:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #7a4217, 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .reset-btn {
+      background: #3498db;
+      border-color: #1f618d;
+    }
+
+    .undo-btn {
+      background: #9b59b6;
+      border-color: #6c3483;
+    }
+
+    .message-area {
+      text-align: center;
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      margin-top: 10px;
+      color: #ffd966;
+      font-weight: bold;
+      text-shadow: 2px 2px 0 #2d3e1f;
+      min-height: 45px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .counter {
+      background: #222;
+      color: #ffd966;
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-size: clamp(1rem, 2.8vw, 1.4rem);
+      font-weight: bold;
+      box-shadow: inset 0 2px 8px black;
+      white-space: nowrap;
+    }
+
+    .difficulty-selector {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+
+    .difficulty-selector button {
+      padding: 8px 16px;
+      font-size: 0.95rem;
+      background: #6c5ce7;
+      border-color: #4a3db5;
+    }
+
+    .win-message {
+      background: #ffd700;
+      color: #1e3b0e;
+      padding: 10px 25px;
+      border-radius: 30px;
+      animation: pulse 0.8s infinite;
+      display: inline-block;
+      white-space: normal;
+      line-height: 1.4;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .rules {
+      color: #d4edc9;
+      margin-top: 12px;
+      text-align: center;
+      max-width: 500px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+<div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+  <div class="game-wrapper">
+    <h1>🐸 Лягушки-попрыгушки 🐸</h1>
+
+    <div class="difficulty-selector">
+      <button onclick="setDifficulty(1)">🐣 1+1</button>
+      <button onclick="setDifficulty(2)" style="background:#f39c12;">🐸 2+2</button>
+      <button onclick="setDifficulty(3)" style="background:#e74c3c;">🐲 3+3</button>
+      <button onclick="setDifficulty(4)" style="background:#c0392b;">🔥 4+4</button>
+    </div>
+
+    <div class="pond" id="pondContainer"></div>
+
+    <div class="controls">
+      <button class="reset-btn" onclick="resetGame()">🔄 Заново</button>
+      <button class="undo-btn" onclick="undoMove()">↩ Отменить ход</button>
+      <div class="counter">Ходы: <span id="moveCounter">0</span></div>
+    </div>
+    <div class="message-area" id="messageDisplay"></div>
+  </div>
+  <div class="rules">
+    🟢 Зелёные прыгают только <b>вправо</b> ⏩<br>
+    🔴 Красные прыгают только <b>влево</b> ⏪<br>
+    Можно прыгать на соседнюю <b>пустую</b> кочку или <b>через одну лягушку</b> на пустую.
+  </div>
+</div>
+
+<script>
+  (function() {
+    // --- Состояние игры ---
+    let state = {
+      pads: [],
+      size: 2,
+      selectedIndex: -1,
+      moves: 0,
+      gameOver: false,
+      history: []
+    };
+
+    const pondEl = document.getElementById('pondContainer');
+    const moveSpan = document.getElementById('moveCounter');
+    const messageEl = document.getElementById('messageDisplay');
+
+    // Функция склонения слова "ход"
+    function pluralizeMoves(count) {
+      const mod10 = count % 10;
+      const mod100 = count % 100;
+      
+      if (mod10 === 1 && mod100 !== 11) {
+        return 'ход';
+      } else if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) {
+        return 'хода';
+      } else {
+        return 'ходов';
+      }
+    }
+
+    function buildInitialState(n) {
+      let arr = [];
+      for (let i = 0; i < n; i++) arr.push('L');
+      arr.push('');
+      for (let i = 0; i < n; i++) arr.push('R');
+      return arr;
+    }
+
+    function saveHistory() {
+      state.history.push([...state.pads]);
+    }
+
+    function resetGame() {
+      state.pads = buildInitialState(state.size);
+      state.selectedIndex = -1;
+      state.moves = 0;
+      state.gameOver = false;
+      state.history = [];
+      render();
+      messageEl.textContent = '';
+    }
+
+    function setDifficulty(n) {
+      state.size = n;
+      resetGame();
+    }
+
+    function undoMove() {
+      if (state.gameOver) {
+        messageEl.textContent = 'Игра завершена. Начните заново для отмены ходов.';
+        return;
+      }
+      if (state.history.length === 0) {
+        messageEl.textContent = 'Нет ходов для отмены.';
+        return;
+      }
+      state.pads = state.history.pop();
+      state.moves = Math.max(0, state.moves - 1);
+      state.selectedIndex = -1;
+      state.gameOver = false;
+      render();
+      messageEl.textContent = '↩ Ход отменён.';
+    }
+
+    function checkVictory(pads, n) {
+      let expected = [];
+      for (let i = 0; i < n; i++) expected.push('R');
+      expected.push('');
+      for (let i = 0; i < n; i++) expected.push('L');
+      if (pads.length !== expected.length) return false;
+      return pads.every((val, idx) => val === expected[idx]);
+    }
+
+    function tryMove(targetIndex) {
+      if (state.gameOver) {
+        messageEl.textContent = '🎉 Игра уже пройдена! Нажмите "Заново".';
+        return;
+      }
+
+      const pads = state.pads;
+
+      if (state.selectedIndex === -1) {
+        if (pads[targetIndex] === 'L' || pads[targetIndex] === 'R') {
+          state.selectedIndex = targetIndex;
+          render();
+        } else {
+          messageEl.textContent = '🟤 Это пустая кочка. Выберите лягушку.';
+        }
+        return;
+      }
+
+      const from = state.selectedIndex;
+      const frog = pads[from];
+
+      if (frog !== 'L' && frog !== 'R') {
+        state.selectedIndex = -1;
+        render();
+        return;
+      }
+
+      if (targetIndex === from) {
+        state.selectedIndex = -1;
+        render();
+        messageEl.textContent = 'Выбор снят.';
+        return;
+      }
+
+      if (pads[targetIndex] === 'L' || pads[targetIndex] === 'R') {
+        state.selectedIndex = targetIndex;
+        render();
+        messageEl.textContent = 'Выбрана другая лягушка.';
+        return;
+      }
+
+      if (pads[targetIndex] !== '') {
+        state.selectedIndex = -1;
+        render();
+        messageEl.textContent = '⛔ Сюда нельзя: кочка занята.';
+        return;
+      }
+
+      const direction = frog === 'L' ? 1 : -1;
+      const distance = targetIndex - from;
+
+      if ((frog === 'L' && distance <= 0) || (frog === 'R' && distance >= 0)) {
+        messageEl.textContent = '⛔ Лягушки не прыгают назад!';
+        state.selectedIndex = -1;
+        render();
+        return;
+      }
+
+      if (Math.abs(distance) === 1 && direction === Math.sign(distance)) {
+        performMove(from, targetIndex);
+        return;
+      }
+
+      if (Math.abs(distance) === 2 && direction === Math.sign(distance)) {
+        const middleIndex = from + direction;
+        if (pads[middleIndex] === 'L' || pads[middleIndex] === 'R') {
+          performMove(from, targetIndex);
+          return;
+        } else {
+          messageEl.textContent = '⛔ Перепрыгивать можно только через лягушку!';
+          state.selectedIndex = -1;
+          render();
+          return;
+        }
+      }
+
+      messageEl.textContent = '⛔ Так прыгать нельзя (только на 1 или через 1 лягушку).';
+      state.selectedIndex = -1;
+      render();
+    }
+
+    function performMove(from, to) {
+      saveHistory();
+      const pads = state.pads;
+      pads[to] = pads[from];
+      pads[from] = '';
+      state.moves += 1;
+      state.selectedIndex = -1;
+
+      if (checkVictory(pads, state.size)) {
+        state.gameOver = true;
+        render();
+        const movesWord = pluralizeMoves(state.moves);
+        messageEl.innerHTML = '<span class="win-message">🏆 Поздравляем! Вы выиграли за ' + state.moves + ' ' + movesWord + '!</span>';
+      } else {
+        render();
+        messageEl.textContent = '✅ Ход сделан.';
+      }
+    }
+
+    function render() {
+      pondEl.innerHTML = '';
+      moveSpan.textContent = state.moves;
+
+      state.pads.forEach((frog, index) => {
+        const padDiv = document.createElement('div');
+        padDiv.className = 'lilypad';
+        if (frog === '') {
+          padDiv.classList.add('empty');
+        }
+        if (index === state.selectedIndex) {
+          padDiv.classList.add('selected');
+        }
+
+        if (frog === 'L') {
+          padDiv.innerHTML = '<span class="frog">🐸</span>';
+        } else if (frog === 'R') {
+          padDiv.innerHTML = '<span class="frog frog-red">🐸</span>';
+        }
+
+        padDiv.addEventListener('click', (e) => {
+          tryMove(index);
+        });
+
+        pondEl.appendChild(padDiv);
+      });
+
+      if (!state.gameOver && messageEl.textContent.includes('🏆')) {
+        messageEl.textContent = '';
+      }
+    }
+
+    window.setDifficulty = setDifficulty;
+    window.resetGame = resetGame;
+    window.undoMove = undoMove;
+    window.tryMove = tryMove;
+
+    setDifficulty(2);
+  })();
+</script>
+</body>
+</html>

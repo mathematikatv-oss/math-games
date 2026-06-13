@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🔺 Ханойская башня — Египетский храм</title>
+    <style>
+        :root {
+            --sand: #f4e4c1;
+            --dark-sand: #c9a96e;
+            --gold: #d4a017;
+            --dark-gold: #b8860b;
+            --stone: #8b7355;
+            --dark-stone: #5c4033;
+            --papyrus: #f5f0e1;
+            --night: #1a1a2e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #1a1a2e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            padding: 10px;
+            background-image:
+                radial-gradient(ellipse at 50% 0%, rgba(255, 215, 0, 0.08) 0%, transparent 70%),
+                radial-gradient(ellipse at 20% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+        @keyframes twinkle {
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.8);
+            }
+        }
+
+        .game-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 800px;
+            background: linear-gradient(180deg, #f5e6c8 0%, #e8d5a3 30%, #d4b896 60%, #c4a882 100%);
+            border-radius: 20px 20px 15px 15px;
+            padding: clamp(10px, 2vw, 20px) clamp(8px, 2vw, 15px) clamp(12px, 2vw, 20px);
+            box-shadow:
+                0 0 0 4px #b8860b,
+                0 0 0 8px #8b6914,
+                0 0 0 12px #6b4f12,
+                0 10px 40px rgba(0, 0, 0, 0.6),
+                inset 0 2px 20px rgba(255, 215, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 3px solid #d4a017;
+        }
+        .game-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -18px;
+            left: 20px;
+            right: 20px;
+            height: 36px;
+            background: linear-gradient(180deg, #d4a017, #b8860b);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        .title-area {
+            text-align: center;
+            margin-bottom: clamp(4px, 1vw, 8px);
+        }
+        .hieroglyph-top {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            letter-spacing: 8px;
+            color: #b8860b;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2px;
+            font-family: 'Segoe UI Symbol', 'Arial Unicode MS', sans-serif;
+        }
+        h1 {
+            font-size: clamp(1.1rem, 3.5vw, 2rem);
+            color: #3e2723;
+            text-shadow: 1px 1px 0 #d4a017;
+            letter-spacing: 3px;
+            margin: 0;
+            font-weight: bold;
+        }
+        .subtitle {
+            font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+            color: #6b4f12;
+            font-style: italic;
+            letter-spacing: 2px;
+        }
+
+        .difficulty-area {
+            display: flex;
+            gap: clamp(6px, 1.5vw, 10px);
+            margin: clamp(6px, 1.5vw, 10px) 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .diff-btn {
+            padding: clamp(7px, 1.5vw, 10px) clamp(10px, 2vw, 16px);
+            font-weight: bold;
+            cursor: pointer;
+            font-size: clamp(0.7rem, 1.6vw, 0.9rem);
+            font-family: 'Georgia', serif;
+            letter-spacing: 1px;
+            border: 2px solid #8b6914;
+            background: linear-gradient(180deg, #e8d5a3, #c9a96e);
+            color: #3e2723;
+            transition: all 0.25s;
+            clip-path: polygon(10% 0%, 90% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%);
+            box-shadow: 0 4px 0 #6b4f12, 0 6px 12px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+        }
+        .diff-btn:hover {
+            background: linear-gradient(180deg, #f5e6c8, #d4a017);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #6b4f12, 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+        .diff-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #6b4f12, 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .diff-btn.active {
+            background: linear-gradient(180deg, #d4a017, #b8860b);
+            color: #fff;
+            border-color: #6b4f12;
+            box-shadow: 0 0 20px rgba(212, 160, 23, 0.6), 0 4px 0 #6b4f12;
+        }
+
+        /* Игровое поле — теперь адаптивное */
+        .temple-floor {
+            width: 100%;
+            background: linear-gradient(180deg, #c9a96e, #a0845c);
+            border-radius: 12px;
+            padding: clamp(8px, 2vw, 15px) clamp(5px, 1.5vw, 10px) clamp(10px, 2vw, 20px);
+            border: 3px solid #8b6914;
+            box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.4), 0 6px 0 #6b4f12;
+            margin: 5px 0;
+            /* Автоматическая высота */
+            min-height: 0;
+            flex-shrink: 0;
+        }
+
+        .rods-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding: 0 clamp(2px, 1vw, 10px);
+            /* Высота зависит от количества дисков */
+            min-height: 0;
+        }
+
+        .rod-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            flex: 1;
+            max-width: 33%;
+            transition: transform 0.15s;
+        }
+        .rod-col:hover {
+            transform: scale(1.02);
+        }
+        .rod-col.selected {
+            transform: scale(1.04);
+        }
+
+        .rod-stack {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+        }
+
+        /* Стержень */
+        .rod-pole {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: clamp(6px, 1.5vw, 10px);
+            background: linear-gradient(90deg, #d4a017, #8b6914, #d4a017);
+            border-radius: 3px 3px 0 0;
+            box-shadow: 0 0 12px rgba(212, 160, 23, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .rod-cap {
+            width: clamp(14px, 3vw, 20px);
+            height: clamp(7px, 1.5vw, 10px);
+            background: radial-gradient(ellipse at 50% 100%, #ffd700, #d4a017, #b8860b);
+            border-radius: 50%;
+            box-shadow: 0 0 16px rgba(255, 215, 0, 0.7);
+            z-index: 4;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .disks-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            position: relative;
+        }
+
+        .disk {
+            height: clamp(18px, 3.5vw, 26px);
+            border-radius: clamp(6px, 1.5vw, 10px);
+            margin: clamp(1px, 0.3vw, 2px) 0;
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            position: relative;
+            cursor: default;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .disk::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: clamp(10px, 2vw, 14px);
+            height: clamp(10px, 2vw, 14px);
+            background: #3e2723;
+            border-radius: 50%;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+            z-index: 3;
+            pointer-events: none;
+        }
+        .disk::after {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 12%;
+            right: 12%;
+            height: 20%;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .disk .hieroglyph {
+            position: relative;
+            z-index: 1;
+            font-size: clamp(7px, 1.5vw, 10px);
+            color: rgba(255, 255, 255, 0.8);
+            font-family: 'Segoe UI Symbol', sans-serif;
+            pointer-events: none;
+            margin: 0 8px;
+        }
+
+        .disk.lifted {
+            transform: translateY(clamp(-35px, -6vw, -60px)) scale(1.1);
+            box-shadow: 0 16px 24px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            z-index: 100 !important;
+        }
+
+        .platform {
+            width: 100%;
+            height: clamp(10px, 2vw, 16px);
+            background: linear-gradient(180deg, #6b4f12, #8b6914);
+            border-radius: 4px;
+            margin-top: clamp(3px, 1vw, 8px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        .platform::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #d4a017;
+            border-radius: 2px;
+        }
+
+        .rod-label {
+            text-align: center;
+            font-size: clamp(0.6rem, 1.3vw, 0.8rem);
+            color: #6b4f12;
+            margin-top: clamp(4px, 1vw, 8px);
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-family: 'Georgia', serif;
+        }
+
+        .info-area {
+            display: flex;
+            gap: clamp(10px, 2vw, 20px);
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: clamp(4px, 1vw, 8px) 0;
+            font-family: 'Georgia', serif;
+        }
+        .counter {
+            background: #3e2723;
+            color: #d4a017;
+            padding: clamp(6px, 1.2vw, 8px) clamp(12px, 2.5vw, 18px);
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            letter-spacing: 2px;
+            border: 2px solid #8b6914;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            white-space: nowrap;
+        }
+        .counter span {
+            color: #ffd700;
+            font-size: clamp(1rem, 2.2vw, 1.3rem);
+        }
+        .min-moves {
+            background: #2c1810;
+            color: #c9a96e;
+            padding: clamp(6px, 1.2vw, 8px) clamp(12px, 2.5vw, 18px);
+            border-radius: 4px;
+            font-size: clamp(0.75rem, 1.6vw, 0.9rem);
+            letter-spacing: 1px;
+            border: 2px solid #6b4f12;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .message-area {
+            text-align: center;
+            font-size: clamp(0.9rem, 2vw, 1.15rem);
+            min-height: clamp(24px, 5vw, 30px);
+            color: #3e2723;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .message-area .win {
+            color: #b8860b;
+            animation: glow 1.5s ease-in-out infinite;
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+        }
+        @keyframes glow {
+            0%,
+            100% {
+                text-shadow: 0 0 5px #ffd700;
+            }
+            50% {
+                text-shadow: 0 0 25px #ffd700, 0 0 40px #d4a017;
+            }
+        }
+
+        .buttons-area {
+            display: flex;
+            gap: clamp(8px, 1.5vw, 12px);
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: clamp(3px, 1vw, 5px);
+        }
+        .egypt-btn {
+            padding: clamp(7px, 1.5vw, 10px) clamp(14px, 3vw, 20px);
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            letter-spacing: 2px;
+            cursor: pointer;
+            font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+            border: 2px solid #8b6914;
+            background: linear-gradient(180deg, #d4a017, #b8860b);
+            color: #3e2723;
+            clip-path: polygon(8% 0%, 92% 0%, 100% 25%, 100% 100%, 0% 100%, 0% 25%);
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #6b4f12, 0 6px 12px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+        }
+        .egypt-btn:hover {
+            background: linear-gradient(180deg, #f5e6c8, #d4a017);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #6b4f12, 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+        .egypt-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #6b4f12, 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .egypt-btn.undo {
+            background: linear-gradient(180deg, #c9a96e, #a0845c);
+        }
+
+        .sand-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 200;
+            animation: sandFall 1s ease-in forwards;
+        }
+        @keyframes sandFall {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(60px) rotate(180deg);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .game-wrapper {
+                padding: 8px 4px 10px;
+            }
+            .disk {
+                height: 15px;
+                border-radius: 4px;
+            }
+            .disk .hieroglyph {
+                font-size: 6px;
+            }
+            .rod-cap {
+                width: 12px;
+                height: 5px;
+            }
+            .rod-pole {
+                width: 5px;
+            }
+            .egypt-btn {
+                padding: 6px 10px;
+                font-size: 0.65rem;
+                letter-spacing: 1px;
+            }
+            .diff-btn {
+                padding: 5px 8px;
+                font-size: 0.65rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="stars" id="starsContainer"></div>
+
+<div class="game-wrapper">
+    <div class="title-area">
+        <div class="hieroglyph-top">☥ 𓂀 ☥</div>
+        <h1>ХАНОЙСКАЯ БАШНЯ</h1>
+        <div class="subtitle">Храм бога Тота · Египет</div>
+    </div>
+
+    <div class="difficulty-area">
+        <button class="diff-btn active" onclick="setDifficulty(3)">𓏼 3 диска</button>
+        <button class="diff-btn" onclick="setDifficulty(4)">𓏽 4 диска</button>
+        <button class="diff-btn" onclick="setDifficulty(5)">𓏾 5 дисков</button>
+        <button class="diff-btn" onclick="setDifficulty(6)">𓏿 6 дисков</button>
+    </div>
+
+    <div class="temple-floor">
+        <div class="rods-container" id="rodsContainer"></div>
+        <div class="platform"></div>
+    </div>
+
+    <div class="info-area">
+        <div class="counter">𓏹 Ходы: <span id="moveCount">0</span></div>
+        <div class="min-moves">🎯 Минимум: <span id="minMoves">7</span></div>
+    </div>
+
+    <div class="message-area" id="messageDisplay"></div>
+
+    <div class="buttons-area">
+        <button class="egypt-btn undo" onclick="undoMove()">↩ Отменить ход</button>
+        <button class="egypt-btn" onclick="resetGame()">🔄 Заново</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const starsContainer = document.getElementById('starsContainer');
+        for (let i = 0; i < 60; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = (Math.random() * 3 + 1) + 'px';
+            star.style.height = star.style.width;
+            star.style.setProperty('--duration', (Math.random() * 2 + 1.5) + 's');
+            star.style.setProperty('--delay', Math.random() * 3 + 's');
+            starsContainer.appendChild(star);
+        }
+
+        let numDisks = 3;
+        let rods = [
+            [],
+            [],
+            []
+        ];
+        let selectedRod = -1;
+        let moveCount = 0;
+        let moveHistory = [];
+        let gameWon = false;
+
+        const diskColors = ['#c41e3a', '#1e5f74', '#d4a017', '#2e7d32', '#6a1b9a', '#e65100'];
+        const diskHieroglyphs = ['𓂀', '☥', '𓋹', '𓆣', '𓃒', '𓅯'];
+
+        const rodsContainer = document.getElementById('rodsContainer');
+        const moveCountSpan = document.getElementById('moveCount');
+        const minMovesSpan = document.getElementById('minMoves');
+        const messageDisplay = document.getElementById('messageDisplay');
+
+        function initGame() {
+            rods = [
+                [],
+                [],
+                []
+            ];
+            for (let i = numDisks - 1; i >= 0; i--) rods[0].push(i);
+            selectedRod = -1;
+            moveCount = 0;
+            moveHistory = [];
+            gameWon = false;
+            updateUI();
+            messageDisplay.innerHTML = '';
+        }
+
+        function setDifficulty(n) {
+            numDisks = n;
+            document.querySelectorAll('.diff-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', [3, 4, 5, 6][i] === n);
+            });
+            initGame();
+        }
+
+        function canMove(fromRod, toRod) {
+            if (fromRod === toRod) return false;
+            if (rods[fromRod].length === 0) return false;
+            if (rods[toRod].length === 0) return true;
+            return rods[fromRod][rods[fromRod].length - 1] < rods[toRod][rods[toRod].length - 1];
+        }
+
+        function moveDisk(fromRod, toRod, record = true) {
+            if (!canMove(fromRod, toRod)) return false;
+            if (record) moveHistory.push({ from: fromRod, to: toRod });
+            const disk = rods[fromRod].pop();
+            rods[toRod].push(disk);
+            if (record) {
+                moveCount++;
+                if (moveCount === 1) spawnSandParticles();
+            }
+            if (rods[2].length === numDisks && record) {
+                gameWon = true;
+                messageDisplay.innerHTML =
+                    '<span class="win">🏆 Слава фараону! Башня перенесена! 🏆</span>';
+                spawnVictoryParticles();
+            }
+            if (record) {
+                selectedRod = -1;
+                updateUI();
+            }
+            return true;
+        }
+
+        function handleRodClick(rodIndex) {
+            if (gameWon) return;
+            if (selectedRod === -1) {
+                if (rods[rodIndex].length > 0) {
+                    selectedRod = rodIndex;
+                    updateUI();
+                }
+            } else {
+                if (selectedRod === rodIndex) {
+                    selectedRod = -1;
+                    updateUI();
+                } else if (canMove(selectedRod, rodIndex)) {
+                    moveDisk(selectedRod, rodIndex);
+                } else {
+                    if (rods[rodIndex].length > 0) selectedRod = rodIndex;
+                    else selectedRod = -1;
+                    updateUI();
+                    messageDisplay.innerHTML = '⛔ Нельзя класть больший диск на меньший!';
+                    setTimeout(() => { if (!gameWon) messageDisplay.innerHTML = ''; }, 1500);
+                }
+            }
+        }
+
+        function undoMove() {
+            if (gameWon || moveHistory.length === 0) return;
+            const lastMove = moveHistory.pop();
+            moveDisk(lastMove.to, lastMove.from, false);
+            moveCount--;
+            selectedRod = -1;
+            updateUI();
+            messageDisplay.innerHTML = '↩ Ход отменён';
+            setTimeout(() => { if (!gameWon) messageDisplay.innerHTML = ''; }, 1200);
+        }
+
+        function resetGame() { initGame(); }
+
+        function spawnSandParticles() {
+            for (let i = 0; i < 8; i++) {
+                const p = document.createElement('div');
+                p.className = 'sand-particle';
+                p.textContent = '✦';
+                p.style.left = (40 + Math.random() * 20) + '%';
+                p.style.top = (30 + Math.random() * 20) + '%';
+                p.style.color = ['#d4a017', '#c9a96e', '#f5e6c8'][Math.floor(Math.random() * 3)];
+                p.style.fontSize = (6 + Math.random() * 10) + 'px';
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+        }
+
+        function spawnVictoryParticles() {
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const p = document.createElement('div');
+                    p.className = 'sand-particle';
+                    p.textContent = ['✦', '★', '𓂀', '☥', '✨'][Math.floor(Math.random() * 5)];
+                    p.style.left = (10 + Math.random() * 80) + '%';
+                    p.style.top = (10 + Math.random() * 60) + '%';
+                    p.style.color = '#ffd700';
+                    p.style.fontSize = (10 + Math.random() * 16) + 'px';
+                    p.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+                    document.body.appendChild(p);
+                    setTimeout(() => p.remove(), 2000);
+                }, i * 60);
+            }
+        }
+
+        function updateUI() {
+            rodsContainer.innerHTML = '';
+            moveCountSpan.textContent = moveCount;
+            minMovesSpan.textContent = Math.pow(2, numDisks) - 1;
+
+            // Ширина дисков адаптивная
+            const maxDiskWidth = Math.min(85, (window.innerWidth * 0.35) / 3);
+            const minDiskWidth = Math.min(35, maxDiskWidth * 0.6);
+            const diskWidths = [];
+            for (let i = 0; i < numDisks; i++) {
+                diskWidths.push(minDiskWidth + (maxDiskWidth - minDiskWidth) * (i / (numDisks - 1 || 1)));
+            }
+
+            // Высота стержня = высота всех дисков + отступы
+            const diskH = parseFloat(getComputedStyle(document.documentElement).fontSize) * 0.35 * 16;
+            const rodHeight = numDisks * 30 + 30;
+
+            for (let rodIdx = 0; rodIdx < 3; rodIdx++) {
+                const col = document.createElement('div');
+                col.className = 'rod-col';
+                if (rodIdx === selectedRod) col.classList.add('selected');
+                col.addEventListener('click', () => handleRodClick(rodIdx));
+
+                const stack = document.createElement('div');
+                stack.className = 'rod-stack';
+                stack.style.minHeight = (numDisks * 30 + 40) + 'px';
+
+                const pole = document.createElement('div');
+                pole.className = 'rod-pole';
+                pole.style.height = (numDisks * 30 + 30) + 'px';
+                stack.appendChild(pole);
+
+                const disksEl = document.createElement('div');
+                disksEl.className = 'disks-stack';
+                for (let i = rods[rodIdx].length - 1; i >= 0; i--) {
+                    const diskSize = rods[rodIdx][i];
+                    const disk = document.createElement('div');
+                    disk.className = 'disk';
+                    disk.style.width = diskWidths[diskSize] + 'px';
+                    disk.style.background =
+                        `linear-gradient(180deg, ${diskColors[diskSize]}cc, ${diskColors[diskSize]})`;
+                    disk.style.border = `2px solid ${diskColors[diskSize]}88`;
+                    const hiero = document.createElement('span');
+                    hiero.className = 'hieroglyph';
+                    hiero.textContent = diskHieroglyphs[diskSize];
+                    disk.appendChild(hiero);
+                    if (rodIdx === selectedRod && i === rods[rodIdx].length - 1) {
+                        disk.classList.add('lifted');
+                    }
+                    disksEl.appendChild(disk);
+                }
+                stack.appendChild(disksEl);
+
+                const cap = document.createElement('div');
+                cap.className = 'rod-cap';
+                stack.appendChild(cap);
+
+                col.appendChild(stack);
+
+                const label = document.createElement('div');
+                label.className = 'rod-label';
+                const labels = ['𓃒 Начало', '𓊨 Помощь', '𓅯 Цель'];
+                label.textContent = labels[rodIdx];
+                col.appendChild(label);
+
+                rodsContainer.appendChild(col);
+            }
+        }
+
+        // Адаптивная перерисовка при изменении размера окна
+        window.addEventListener('resize', updateUI);
+
+        window.setDifficulty = setDifficulty;
+        window.undoMove = undoMove;
+        window.resetGame = resetGame;
+
+        initGame();
+    })();
+</script>
+</body>
+</html>

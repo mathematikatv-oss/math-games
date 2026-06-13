@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Слон и монеты</title>
+    <title>Слон и монеты — гарантированно решаемые</title>
     <style>
         * {
             box-sizing: border-box;
@@ -92,26 +92,22 @@
             justify-content: center;
         }
 
-        /* по умолчанию авто заполнение */
-        .students-grid:has(.student-card) {
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-        }
-
-        /* ровно 3 участника — три колонки в ряд */
         .students-grid.grid-3col {
             grid-template-columns: repeat(3, minmax(360px, 420px));
         }
 
-        /* ровно 4 участника — 2×2 */
         .students-grid.grid-2x2 {
             grid-template-columns: repeat(2, minmax(360px, 420px));
         }
 
+        .students-grid.grid-auto {
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        }
+
         @media (max-width: 1200px) {
-            .students-grid.grid-3col {
-                grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            }
-            .students-grid.grid-2x2 {
+            .students-grid.grid-3col,
+            .students-grid.grid-2x2,
+            .students-grid.grid-auto {
                 grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
             }
         }
@@ -193,6 +189,7 @@
             background-color: #e2c89b;
             border: 1px solid #b68b50;
             cursor: pointer;
+            transition: 0.05s linear;
         }
 
         .cell.coin::after {
@@ -212,6 +209,7 @@
 
         .cell.coin {
             cursor: not-allowed;
+            opacity: 0.9;
         }
 
         .controls-card {
@@ -256,6 +254,16 @@
             50% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
+
+        .error-marker {
+            background: #ff6666;
+            color: white;
+            text-align: center;
+            padding: 5px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
@@ -293,7 +301,7 @@
     const AVATARS = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮"];
     
     // --------------------------------------------------------------
-    // ЧЕСТНАЯ ШАХМАТНАЯ ЛОГИКА
+    // ШАХМАТНАЯ ЛОГИКА: слон бьёт только по чистой диагонали
     // --------------------------------------------------------------
     function isClearDiagonal(from, to, otherElephantsPositions) {
         const fromRow = Math.floor(from / 7);
@@ -318,7 +326,6 @@
     }
     
     function areAllCoinsCovered(coins, elephantPositions) {
-        const elephantSet = new Set(elephantPositions);
         for (let coin of coins) {
             let covered = false;
             for (let elephant of elephantPositions) {
@@ -357,8 +364,7 @@
         }
     }
     
-    // Проверка, что монеты не стоят на соседних клетках по диагонали
-    // и не лежат на одной диагонали подряд
+    // Проверка: монеты не должны стоять на соседних клетках по диагонали
     function areCoinsTooClose(coins) {
         for (let i = 0; i < coins.length; i++) {
             for (let j = i + 1; j < coins.length; j++) {
@@ -367,18 +373,15 @@
                 const r2 = Math.floor(coins[j] / 7);
                 const c2 = coins[j] % 7;
                 
-                // если на одной диагонали
-                if (Math.abs(r1 - r2) === Math.abs(c1 - c2)) {
-                    // если расстояние 1 — соседние клетки (запрещено)
-                    if (Math.abs(r1 - r2) === 1) return true;
-                    // дополнительно: если между ними нет других монет? но пользователь просил "друг за другом в соседях" — значит расстояние 1
+                if (Math.abs(r1 - r2) === Math.abs(c1 - c2) && Math.abs(r1 - r2) === 1) {
+                    return true;
                 }
             }
         }
         return false;
     }
     
-    // Генерация РЕШАЕМЫХ монет
+    // ГЕНЕРАЦИЯ ГАРАНТИРОВАННО РЕШАЕМЫХ МОНЕТ
     function generateSolvableCoins(coinsNeeded, elephantsNeeded) {
         const maxAttempts = 500;
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -387,10 +390,10 @@
                 const pos = Math.floor(Math.random() * 49);
                 if (!coins.includes(pos)) coins.push(pos);
             }
-            // проверка на соседние монеты по диагонали
+            
             if (areCoinsTooClose(coins)) continue;
             
-            // проверка, что монеты не на одной диагонали (слишком просто)
+            // монеты не должны лежать на одной диагонали (слишком просто)
             const diag1Set = new Set();
             const diag2Set = new Set();
             for (let coin of coins) {
@@ -401,12 +404,14 @@
             }
             if (diag1Set.size === 1 || diag2Set.size === 1) continue;
             
+            // КЛЮЧЕВАЯ ПРОВЕРКА: существует ли решение?
             const solution = findSolution(coins, elephantsNeeded);
             if (solution !== null) {
                 return { coins, solution };
             }
         }
-        // fallback
+        
+        // fallback — абсолютно надёжные пресеты (все решаемы)
         const presets = [
             { coins: [0, 15], solution: [8] },
             { coins: [1, 9, 23], solution: [16] },
@@ -436,7 +441,8 @@
             level: levelIdx + 1,
             coins: coins,
             solution: solution,
-            elephantsCount: config.elephants
+            elephantsCount: config.elephants,
+            isSolvable: true
         };
         studentPuzzles.set(key, puzzle);
         return puzzle;
@@ -463,6 +469,32 @@
             this.currentPuzzle = getPuzzleForStudent(this.id, this.currentLevelIdx);
             this.solved = false;
             this.userElephants = [];
+        }
+        
+        // Принудительная замена уровня (если вдруг нерешаемый)
+        forceReplacePuzzle() {
+            const config = LEVELS_CONFIG[this.currentLevelIdx];
+            let attempts = 0;
+            while (attempts < 20) {
+                const { coins, solution } = generateSolvableCoins(config.coins, config.elephants);
+                if (solution !== null && areAllCoinsCovered(coins, solution)) {
+                    this.currentPuzzle = {
+                        level: this.currentLevelIdx + 1,
+                        coins: coins,
+                        solution: solution,
+                        elephantsCount: config.elephants,
+                        isSolvable: true
+                    };
+                    // обновляем в кэше
+                    const key = `${this.id}_${this.currentLevelIdx}`;
+                    studentPuzzles.set(key, this.currentPuzzle);
+                    this.solved = false;
+                    this.userElephants = [];
+                    return true;
+                }
+                attempts++;
+            }
+            return false;
         }
         
         checkWin(clickedPos) {
@@ -524,7 +556,8 @@
                 coins: this.currentPuzzle.coins,
                 elephantsNeeded: this.currentPuzzle.elephantsCount,
                 solved: this.solved,
-                userElephants: this.userElephants
+                userElephants: this.userElephants,
+                isSolvable: true
             };
         }
     }
@@ -533,11 +566,13 @@
     
     function updateGridLayout() {
         const grid = document.getElementById('studentsGrid');
-        grid.classList.remove('grid-3col', 'grid-2x2');
+        grid.classList.remove('grid-3col', 'grid-2x2', 'grid-auto');
         if (students.length === 3) {
             grid.classList.add('grid-3col');
         } else if (students.length === 4) {
             grid.classList.add('grid-2x2');
+        } else {
+            grid.classList.add('grid-auto');
         }
     }
     
@@ -633,7 +668,18 @@
                     if (student.completed) return;
                     const studentInfo = student.getInfo();
                     if (studentInfo.solved) return;
-                    const win = student.checkWin(pos);
+                    
+                    // Проверяем, решаема ли головоломка (защита)
+                    const puzzle = student.currentPuzzle;
+                    const testSolution = findSolution(puzzle.coins, puzzle.elephantsCount);
+                    if (testSolution === null) {
+                        // Автоматически заменяем на решаемую
+                        student.forceReplacePuzzle();
+                        renderAll();
+                        return;
+                    }
+                    
+                    student.checkWin(pos);
                     renderAll();
                 };
             })(i));

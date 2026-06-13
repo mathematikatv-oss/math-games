@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🗣️ Устные головоломки — 6 жанров</title>
+    <style>
+        :root {
+            --bg: #fdfaf3;
+            --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            --text: #3e2723;
+            --gold: #d4a017;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #fdfaf3 0%, #f7f2e4 50%, #f0e8d5 100%);
+            min-height: 100vh;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            display: flex;
+            justify-content: center;
+            padding: 20px 10px 40px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .main-header {
+            text-align: center;
+        }
+        .main-header .icon-row {
+            font-size: clamp(2rem, 5vw, 3rem);
+            letter-spacing: 6px;
+        }
+        .main-header h1 {
+            font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+            color: #3e2723;
+            letter-spacing: 3px;
+            margin: 4px 0;
+        }
+        .main-header .ornament {
+            color: #d4a017;
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+        }
+
+        .section {
+            background: #fffef9;
+            border-radius: 20px;
+            padding: 20px 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            border: 2px solid #e8dcc8;
+        }
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+        .section-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        .section-title {
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+            letter-spacing: 2px;
+            color: #3e2723;
+            font-weight: bold;
+        }
+        .section-definition {
+            font-size: 0.78rem;
+            color: #888;
+            font-style: italic;
+            line-height: 1.4;
+            margin-top: 2px;
+        }
+        .section-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .icon-riddles {
+            background: #f3e5f5;
+        }
+        .badge-riddles {
+            background: #f3e5f5;
+            color: #8e44ad;
+        }
+        .icon-charades {
+            background: #e3f2fd;
+        }
+        .badge-charades {
+            background: #e3f2fd;
+            color: #2980b9;
+        }
+        .icon-danetki {
+            background: #ffebee;
+        }
+        .badge-danetki {
+            background: #ffebee;
+            color: #c0392b;
+        }
+        .icon-logogriffs {
+            background: #fff3e0;
+        }
+        .badge-logogriffs {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .icon-anagrams {
+            background: #e8f5e9;
+        }
+        .badge-anagrams {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .icon-tricks {
+            background: #fce4ec;
+        }
+        .badge-tricks {
+            background: #fce4ec;
+            color: #c62828;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .card-wrapper {
+            perspective: 1000px;
+            height: 340px;
+        }
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 18px 14px;
+            box-shadow: var(--card-shadow);
+            border: 2px solid #e8dcc8;
+            text-align: center;
+            background: #fffef9;
+        }
+
+        .card-front {
+            z-index: 2;
+            transform: rotateY(0deg);
+            justify-content: center;
+            gap: 10px;
+        }
+        .card-front .card-icon {
+            font-size: 3.5rem;
+            line-height: 1;
+        }
+        .card-front .card-label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            padding: 5px 16px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+        .card-front .card-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #d4a017;
+        }
+        .card-front .tap-hint {
+            font-size: 0.7rem;
+            color: #bbb;
+            font-style: italic;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            justify-content: flex-start;
+            gap: 8px;
+            overflow-y: auto;
+            text-align: left;
+            padding: 16px 14px;
+        }
+        .card-back .back-type {
+            font-size: 0.7rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            align-self: flex-start;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+        .card-back .card-illustration {
+            font-size: 2.8rem;
+            text-align: center;
+            line-height: 1;
+            flex-shrink: 0;
+            opacity: 0.85;
+        }
+        .card-back .riddle-question {
+            font-size: 0.9rem;
+            color: #3e2723;
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+        .card-back .buttons-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .card-back .btn {
+            padding: 7px 14px;
+            border-radius: 20px;
+            border: 2px solid #d4a017;
+            background: #fffef5;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 0.75rem;
+            color: #8b6914;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+        .card-back .btn:hover {
+            background: #d4a017;
+            color: #fff;
+        }
+        .card-back .btn.hint-btn {
+            border-color: #2980b9;
+            color: #2980b9;
+        }
+        .card-back .btn.hint-btn:hover {
+            background: #2980b9;
+            color: #fff;
+        }
+        .card-back .hint-text {
+            font-size: 0.78rem;
+            color: #2980b9;
+            font-style: italic;
+            display: none;
+            line-height: 1.4;
+            animation: fadeIn 0.4s ease;
+        }
+        .card-back .hint-text.show {
+            display: block;
+        }
+        .card-back .answer-text {
+            font-size: 0.82rem;
+            color: #2e7d32;
+            font-style: italic;
+            display: none;
+            line-height: 1.4;
+            animation: fadeIn 0.4s ease;
+            background: #e8f5e9;
+            padding: 8px 10px;
+            border-radius: 10px;
+            margin-top: 4px;
+        }
+        .card-back .answer-text.show {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .cards-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 10px;
+            }
+            .card-wrapper {
+                height: 300px;
+            }
+            .card-front .card-icon {
+                font-size: 2.5rem;
+            }
+            .card-front .card-number {
+                font-size: 1.8rem;
+            }
+            .card-back .riddle-question {
+                font-size: 0.78rem;
+            }
+            .card-back .btn {
+                font-size: 0.68rem;
+                padding: 5px 10px;
+            }
+            .card-back .card-illustration {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+
+    <div class="main-header">
+        <div class="icon-row">🗣️🧩🔍</div>
+        <h1>Устные головоломки</h1>
+        <p class="ornament">✦ 6 жанров · 18 карточек ✦</p>
+    </div>
+
+</div>
+
+<script>
+    (function() {
+        const sections = [{
+            key: 'riddles',
+            title: 'Загадки',
+            icon: '🧩',
+            definition: 'Вопрос с неожиданным ответом. Нужно подумать нестандартно.',
+            iconClass: 'icon-riddles',
+            badgeClass: 'badge-riddles',
+            labelClass: 'label-riddle',
+            items: [{
+                id: 'r1',
+                illustration: '🏠👤🔢',
+                question: 'Что принадлежит вам, но другие люди пользуются этим гораздо чаще, чем вы?',
+                hint: 'Это есть у каждого человека. Оно помогает вас узнать.',
+                answer: 'Ваше имя.'
+            }, {
+                id: 'r2',
+                illustration: '🕯️💨',
+                question: 'В комнате горело 7 свечей. Мальчик, проходя мимо, потушил 2 свечи. Сколько свечей осталось?',
+                hint: 'Подумай, что происходит со свечами, которые продолжают гореть.',
+                answer: 'Осталось 2 свечи. Остальные сгорели полностью.'
+            }, {
+                id: 'r3',
+                illustration: '📅🔢',
+                question: 'Сколько месяцев в году имеют 28 дней?',
+                hint: 'Внимательно перечитай вопрос. Не «ровно 28», а «имеют 28».',
+                answer: 'Все 12 месяцев. В каждом месяце есть хотя бы 28 дней.'
+            }]
+        }, {
+            key: 'charades',
+            title: 'Шарады',
+            icon: '🔤',
+            definition: 'Слово разбивается на части. Каждая часть — самостоятельное слово. Из частей складывается целое.',
+            iconClass: 'icon-charades',
+            badgeClass: 'badge-charades',
+            labelClass: 'label-charade',
+            items: [{
+                id: 'c1',
+                illustration: '💨🌲',
+                question: 'Первый слог — то, что горит в плите. Второй — хвойное дерево. Вместе — быстрое животное.',
+                hint: 'Природный газ и лесная красавица ель.',
+                answer: 'Газ + ель = газель.'
+            }, {
+                id: 'c2',
+                illustration: '☁️🐱',
+                question: 'Первый слог — то, что идёт из кипящего чайника. Второй — то, что есть у кота и у некоторых мужчин. Вместе — ткань, которая ловит ветер.',
+                hint: 'Горячий пар и кошачьи усы.',
+                answer: 'Пар + ус = парус.'
+            }, {
+                id: 'c3',
+                illustration: '💃🎮',
+                question: 'Первый слог — танцевальный вечер. Второй — раунд в игре. Вместе — выступающая часть дома.',
+                hint: 'Бал и кон (партия в шахматы или раунд).',
+                answer: 'Бал + кон = балкон.'
+            }]
+        }, {
+            key: 'danetki',
+            title: 'Да-нетки',
+            icon: '❓',
+            definition: 'Загадочная ситуация. Дети задают вопросы, учитель отвечает «да» или «нет». Разгадка — в неожиданной детали.',
+            iconClass: 'icon-danetki',
+            badgeClass: 'badge-danetki',
+            labelClass: 'label-danetka',
+            items: [{
+                id: 'd1',
+                illustration: '🏢🛗👤',
+                question: 'Некий человек живёт на девятом этаже. Но каждый раз, возвращаясь домой один, он доезжает на лифте только до седьмого этажа и дальше идёт пешком. Почему?',
+                hint: 'Дело не в лифте и не в желании пройтись. Подумайте о физических возможностях человека.',
+                answer: 'Этот человек — карлик (или ребёнок), он дотягивается только до кнопки седьмого этажа.'
+            }, {
+                id: 'd2',
+                illustration: '🏫🙋‍♂️🙋‍♀️',
+                question: 'Инспектор заметил: когда учитель задаёт вопрос, ВСЕ ученики тянут руки. Учитель выбирает разных учеников, но ответ ВСЕГДА правильный. Как это получается?',
+                hint: 'Ученики договорились о системе. Одни всегда тянут определённую руку.',
+                answer: 'Ученики договорились: кто знает ответ — тянет правую руку, кто не знает — левую. Учитель спрашивает тех, кто тянет правую.'
+            }, {
+                id: 'd3',
+                illustration: '🗼🍽️🇫🇷',
+                question: 'Один французский писатель ужасно не любил Эйфелеву башню, но постоянно там обедал (на первом уровне башни). Как он это объяснял?',
+                hint: 'Подумайте, что видно из окон ресторана на Эйфелевой башне.',
+                answer: 'Это единственное место в Париже, откуда не видно Эйфелеву башню. (Писатель — Ги де Мопассан.)'
+            }]
+        }, {
+            key: 'logogriffs',
+            title: 'Логогрифы',
+            icon: '🔡',
+            definition: 'Замена, добавление или удаление одной буквы превращает одно слово в другое.',
+            iconClass: 'icon-logogriffs',
+            badgeClass: 'badge-logogriffs',
+            labelClass: 'label-logogriff',
+            items: [{
+                id: 'l1',
+                illustration: '🗺️📚',
+                question: 'С «к» я в школе на стене — горы, реки есть на мне. С «п» — от вас не утаю — тоже в школе я стою.',
+                hint: 'Первое — висит в классе. Второе — есть в каждом классе.',
+                answer: 'Карта (с К) → парта (с П).'
+            }, {
+                id: 'l2',
+                illustration: '🅱️🚦',
+                question: 'С буквой «Б» — я одноногий, и стою я у дороги. А без «Б» — ног аж четыре, и стою в твоей квартире.',
+                hint: 'Первое слово — уличный знак. Второе — предмет мебели.',
+                answer: 'Столб (с буквой Б) → стол (без буквы Б).'
+            }, {
+                id: 'l3',
+                illustration: '🌳🐦‍⬛',
+                question: 'С «п» на дереве расту, с «г» яйцо я вам снесу. (От Германа)',
+                hint: 'Первое — часть дерева. Второе — птица, которая несёт яйца.',
+                answer: 'Палка (с буквой П) → галка (с буквой Г). Галка — птица, которая несёт яйца.'
+            }]
+        }, {
+            key: 'anagrams',
+            title: 'Анаграммы',
+            icon: '🔄',
+            definition: 'Перестановка букв в слове так, чтобы получилось новое слово.',
+            iconClass: 'icon-anagrams',
+            badgeClass: 'badge-anagrams',
+            labelClass: 'label-anagram',
+            items: [{
+                id: 'a1',
+                illustration: '💇‍♂️📝',
+                question: 'Переставь буквы в слове «волос» — и ты получишь то, из чего состоят все книги.',
+                hint: 'Из чего состоят книги? Из букв и...',
+                answer: 'Волос → слово.'
+            }, {
+                id: 'a2',
+                illustration: '🚗🚀',
+                question: 'Переставь буквы в слове «карета» — и ты получишь то, что летит в космос.',
+                hint: 'Это летательный аппарат.',
+                answer: 'Карета → ракета.'
+            }, {
+                id: 'a3',
+                illustration: '🐗🪞',
+                question: 'Я дикий зверь с клыками, но переставь мои буквы — и я стану предметом из стекла.',
+                hint: 'Лесной кабан и стеклянная ёмкость.',
+                answer: 'Кабан → банка.'
+            }]
+        }, {
+            key: 'tricks',
+            title: 'Загадки-обманки',
+            icon: '😜',
+            definition: 'Вопрос построен так, чтобы сбить с толку. Очевидный ответ — неверный!',
+            iconClass: 'icon-tricks',
+            badgeClass: 'badge-tricks',
+            labelClass: 'label-trick',
+            items: [{
+                id: 't1',
+                illustration: '🍳👨‍🍳',
+                question: 'Что можно приготовить, но нельзя съесть?',
+                hint: 'Это делают школьники и студенты.',
+                answer: 'Уроки (домашнее задание).'
+            }, {
+                id: 't2',
+                illustration: '🧑‍✈️✈️',
+                question: 'Ты — пилот самолёта. В самолёте 150 пассажиров. Сколько лет пилоту?',
+                hint: 'Кто управляет самолётом в этой загадке?',
+                answer: 'Столько же, сколько тебе. Ведь ты — пилот!'
+            }, {
+                id: 't3',
+                illustration: '🤔🦆',
+                question: 'Летела стая уток. Одна впереди двух, одна позади двух, одна между двух. Сколько всего уток?',
+                hint: 'Они летят друг за другом.',
+                answer: 'Три утки. Они летят в ряд.'
+            }]
+        }];
+
+        let flippedCards = {};
+        const appContainer = document.querySelector('.app-container');
+
+        function buildAllSections() {
+            const existingSections = appContainer.querySelectorAll('.section');
+            existingSections.forEach(s => s.remove());
+
+            sections.forEach(section => {
+                const sectionEl = document.createElement('div');
+                sectionEl.className = 'section';
+                sectionEl.setAttribute('data-section', section.key);
+
+                sectionEl.innerHTML = `
+                    <div class="section-header">
+                        <div class="section-icon ${section.iconClass}">${section.icon}</div>
+                        <div class="section-info">
+                            <div class="section-title">${section.title}</div>
+                            <div class="section-definition">${section.definition}</div>
+                        </div>
+                        <div class="section-badge ${section.badgeClass}">${section.items.length} карточки</div>
+                    </div>
+                    <div class="cards-grid" id="grid-${section.key}"></div>
+                `;
+
+                appContainer.appendChild(sectionEl);
+                renderGrid(section.key, section.items, section.labelClass);
+            });
+        }
+
+        function renderGrid(sectionKey, items, labelClass) {
+            const grid = document.getElementById('grid-' + sectionKey);
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const sectionLabels = {
+                'riddles': 'Загадка',
+                'charades': 'Шарада',
+                'danetki': 'Да-нетка',
+                'logogriffs': 'Логогриф',
+                'anagrams': 'Анаграмма',
+                'tricks': 'Обманка'
+            };
+
+            items.forEach((item, index) => {
+                const cardId = item.id;
+                const isFlipped = flippedCards[cardId] || false;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'card-wrapper';
+
+                const card = document.createElement('div');
+                card.className = 'card' + (isFlipped ? ' flipped' : '');
+
+                const front = document.createElement('div');
+                front.className = 'card-face card-front';
+                front.innerHTML = `
+                    <div class="card-icon">${item.illustration || '🧩'}</div>
+                    <div class="card-label ${labelClass}">${sectionLabels[sectionKey] || 'Головоломка'}</div>
+                    <div class="card-number">№${index + 1}</div>
+                    <div class="tap-hint">👆 Нажми, чтобы открыть</div>
+                `;
+
+                const back = document.createElement('div');
+                back.className = 'card-face card-back';
+                back.innerHTML = `
+                    <div class="back-type ${labelClass}">${sectionLabels[sectionKey] || 'Головоломка'}</div>
+                    <div class="card-illustration">${item.illustration || '🧩'}</div>
+                    <div class="riddle-question">${item.question}</div>
+                    <div class="buttons-row">
+                        <button class="btn hint-btn" data-id="${cardId}">💡 Подсказка</button>
+                        <button class="btn answer-btn" data-id="${cardId}">🔍 Ответ</button>
+                    </div>
+                    <div class="hint-text" id="hint-${cardId}">
+                        💡 ${item.hint}
+                    </div>
+                    <div class="answer-text" id="answer-${cardId}">
+                        ✅ ${item.answer.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+
+                card.appendChild(front);
+                card.appendChild(back);
+                wrapper.appendChild(card);
+
+                wrapper.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('btn') || e.target.closest('.btn')) {
+                        e.stopPropagation();
+                        return;
+                    }
+
+                    const wasFlipped = flippedCards[cardId] || false;
+                    flippedCards[cardId] = !wasFlipped;
+                    card.classList.toggle('flipped', !wasFlipped);
+
+                    renderGrid(sectionKey, items, labelClass);
+                });
+
+                grid.appendChild(wrapper);
+            });
+
+            attachButtons(sectionKey);
+        }
+
+        function attachButtons(sectionKey) {
+            const grid = document.getElementById('grid-' + sectionKey);
+            if (!grid) return;
+
+            grid.querySelectorAll('.hint-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = this.getAttribute('data-id');
+                    const hintEl = document.getElementById('hint-' + id);
+                    if (hintEl) hintEl.classList.add('show');
+                    this.style.display = 'none';
+                });
+            });
+
+            grid.querySelectorAll('.answer-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = this.getAttribute('data-id');
+                    const answerEl = document.getElementById('answer-' + id);
+                    if (answerEl) answerEl.classList.add('show');
+                    this.style.display = 'none';
+                });
+            });
+        }
+
+        buildAllSections();
+    })();
+</script>
+</body>
+</html>

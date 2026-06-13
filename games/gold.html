@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Слон и монеты</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1a472a, #0e2e1a);
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffd966;
+            text-shadow: 2px 2px 0 #5a3a1a;
+            margin: 0 0 8px 0;
+            font-size: 36px;
+        }
+
+        .students-panel {
+            background: #2c3e2fcc;
+            backdrop-filter: blur(8px);
+            border-radius: 60px;
+            padding: 12px 24px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .students-panel label {
+            font-weight: bold;
+            color: #ffecb3;
+            font-size: 18px;
+        }
+
+        #studentCount {
+            font-size: 18px;
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: none;
+            background: #ffd966;
+            font-weight: bold;
+            width: 80px;
+            text-align: center;
+        }
+
+        button {
+            background: #ffb347;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 8px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 3px 0 0 #a5530e;
+            transition: 0.05s linear;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 0 #a5530e;
+        }
+
+        .reset-all {
+            background: #6c8b5e;
+            color: white;
+            box-shadow: 0 3px 0 0 #3a552a;
+        }
+
+        .students-grid {
+            display: grid;
+            gap: 25px;
+            justify-content: center;
+        }
+
+        /* по умолчанию авто заполнение */
+        .students-grid:has(.student-card) {
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        }
+
+        /* ровно 3 участника — три колонки в ряд */
+        .students-grid.grid-3col {
+            grid-template-columns: repeat(3, minmax(360px, 420px));
+        }
+
+        /* ровно 4 участника — 2×2 */
+        .students-grid.grid-2x2 {
+            grid-template-columns: repeat(2, minmax(360px, 420px));
+        }
+
+        @media (max-width: 1200px) {
+            .students-grid.grid-3col {
+                grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            }
+            .students-grid.grid-2x2 {
+                grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            }
+        }
+
+        .student-card {
+            background: #f7efcf;
+            border-radius: 48px;
+            box-shadow: 0 12px 20px rgba(0,0,0,0.3);
+            overflow: hidden;
+            border: 2px solid #ffdd99;
+            width: 100%;
+        }
+
+        .card-header {
+            background: #d9b48b;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #2d2418;
+        }
+
+        .student-avatar {
+            font-size: 48px;
+        }
+
+        .level-badge {
+            background: #2c5a2e;
+            color: #ffec80;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .elephant-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #aa7a4a;
+            padding: 5px 12px;
+            border-radius: 40px;
+            margin-bottom: 12px;
+            justify-content: center;
+        }
+
+        .elephant-indicator span {
+            font-size: 22px;
+        }
+
+        .elephant-indicator .label {
+            font-size: 14px;
+            color: #fff0c0;
+        }
+
+        .puzzle-container {
+            padding: 20px;
+            background: #e8d5a8;
+        }
+
+        .chessboard {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: #c9a87b;
+            border: 3px solid #8b6946;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 1 / 1;
+            margin-bottom: 15px;
+        }
+
+        .cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e2c89b;
+            border: 1px solid #b68b50;
+            cursor: pointer;
+        }
+
+        .cell.coin::after {
+            content: "🪙";
+            font-size: 24px;
+            filter: drop-shadow(0 0 3px gold);
+        }
+
+        .cell.elephant::before {
+            content: "🐘";
+            font-size: 26px;
+        }
+        .cell.elephant-second::before {
+            content: "🐘";
+            font-size: 26px;
+        }
+
+        .cell.coin {
+            cursor: not-allowed;
+        }
+
+        .controls-card {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .next-btn {
+            background: #ffb347;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 15px;
+        }
+
+        .next-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .reset-student {
+            background: #aa6f3c;
+            color: white;
+        }
+
+        .congrats {
+            background: linear-gradient(145deg, #f39c12, #e67e22);
+            text-align: center;
+            padding: 30px 15px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 18px;
+            animation: pulse 0.5s;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <h1>🐘 СЛОН И МОНЕТЫ 🪙</h1>
+
+    <div class="students-panel">
+        <label>👥 Учеников:</label>
+        <input type="number" id="studentCount" min="1" max="6" value="3">
+        <button id="applyCountBtn">Начать</button>
+        <button id="resetAllBtn" class="reset-all">Сбросить всё</button>
+    </div>
+
+    <div id="studentsGrid" class="students-grid"></div>
+</div>
+
+<script>
+    // ========================
+    //  ПОЛЕ 7x7
+    // ========================
+    const LEVELS_CONFIG = [
+        { elephants: 1, coins: 2 },   // 1
+        { elephants: 1, coins: 3 },   // 2
+        { elephants: 1, coins: 3 },   // 3
+        { elephants: 1, coins: 4 },   // 4
+        { elephants: 1, coins: 4 },   // 5
+        { elephants: 2, coins: 5 },   // 6
+        { elephants: 2, coins: 5 },   // 7
+        { elephants: 2, coins: 6 },   // 8
+        { elephants: 2, coins: 6 },   // 9
+        { elephants: 2, coins: 7 }    // 10
+    ];
+    
+    const TOTAL_LEVELS = LEVELS_CONFIG.length;
+    const AVATARS = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮"];
+    
+    // --------------------------------------------------------------
+    // ЧЕСТНАЯ ШАХМАТНАЯ ЛОГИКА
+    // --------------------------------------------------------------
+    function isClearDiagonal(from, to, otherElephantsPositions) {
+        const fromRow = Math.floor(from / 7);
+        const fromCol = from % 7;
+        const toRow = Math.floor(to / 7);
+        const toCol = to % 7;
+        
+        if (Math.abs(fromRow - toRow) !== Math.abs(fromCol - toCol)) return false;
+        
+        const dRow = Math.sign(toRow - fromRow);
+        const dCol = Math.sign(toCol - fromCol);
+        
+        let row = fromRow + dRow;
+        let col = fromCol + dCol;
+        while (row !== toRow || col !== toCol) {
+            const pos = row * 7 + col;
+            if (otherElephantsPositions.has(pos)) return false;
+            row += dRow;
+            col += dCol;
+        }
+        return true;
+    }
+    
+    function areAllCoinsCovered(coins, elephantPositions) {
+        const elephantSet = new Set(elephantPositions);
+        for (let coin of coins) {
+            let covered = false;
+            for (let elephant of elephantPositions) {
+                const otherElephants = new Set(elephantPositions);
+                otherElephants.delete(elephant);
+                if (isClearDiagonal(elephant, coin, otherElephants)) {
+                    covered = true;
+                    break;
+                }
+            }
+            if (!covered) return false;
+        }
+        return true;
+    }
+    
+    function findSolution(coins, elephantsCount) {
+        if (elephantsCount === 1) {
+            for (let pos = 0; pos < 49; pos++) {
+                if (coins.includes(pos)) continue;
+                if (areAllCoinsCovered(coins, [pos])) {
+                    return [pos];
+                }
+            }
+            return null;
+        } else {
+            for (let pos1 = 0; pos1 < 49; pos1++) {
+                if (coins.includes(pos1)) continue;
+                for (let pos2 = pos1 + 1; pos2 < 49; pos2++) {
+                    if (coins.includes(pos2)) continue;
+                    if (areAllCoinsCovered(coins, [pos1, pos2])) {
+                        return [pos1, pos2];
+                    }
+                }
+            }
+            return null;
+        }
+    }
+    
+    // Проверка, что монеты не стоят на соседних клетках по диагонали
+    // и не лежат на одной диагонали подряд
+    function areCoinsTooClose(coins) {
+        for (let i = 0; i < coins.length; i++) {
+            for (let j = i + 1; j < coins.length; j++) {
+                const r1 = Math.floor(coins[i] / 7);
+                const c1 = coins[i] % 7;
+                const r2 = Math.floor(coins[j] / 7);
+                const c2 = coins[j] % 7;
+                
+                // если на одной диагонали
+                if (Math.abs(r1 - r2) === Math.abs(c1 - c2)) {
+                    // если расстояние 1 — соседние клетки (запрещено)
+                    if (Math.abs(r1 - r2) === 1) return true;
+                    // дополнительно: если между ними нет других монет? но пользователь просил "друг за другом в соседях" — значит расстояние 1
+                }
+            }
+        }
+        return false;
+    }
+    
+    // Генерация РЕШАЕМЫХ монет
+    function generateSolvableCoins(coinsNeeded, elephantsNeeded) {
+        const maxAttempts = 500;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            const coins = [];
+            while (coins.length < coinsNeeded) {
+                const pos = Math.floor(Math.random() * 49);
+                if (!coins.includes(pos)) coins.push(pos);
+            }
+            // проверка на соседние монеты по диагонали
+            if (areCoinsTooClose(coins)) continue;
+            
+            // проверка, что монеты не на одной диагонали (слишком просто)
+            const diag1Set = new Set();
+            const diag2Set = new Set();
+            for (let coin of coins) {
+                const r = Math.floor(coin / 7);
+                const c = coin % 7;
+                diag1Set.add(r + c);
+                diag2Set.add(r - c);
+            }
+            if (diag1Set.size === 1 || diag2Set.size === 1) continue;
+            
+            const solution = findSolution(coins, elephantsNeeded);
+            if (solution !== null) {
+                return { coins, solution };
+            }
+        }
+        // fallback
+        const presets = [
+            { coins: [0, 15], solution: [8] },
+            { coins: [1, 9, 23], solution: [16] },
+            { coins: [2, 16, 30], solution: [9] },
+            { coins: [3, 11, 27, 35], solution: [19] },
+            { coins: [4, 18, 29, 41], solution: [24] },
+            { coins: [5, 13, 22, 31, 44], solution: [18, 30] },
+            { coins: [6, 19, 28, 37, 46], solution: [13, 41] },
+            { coins: [7, 14, 25, 33, 42, 48], solution: [21, 39] },
+            { coins: [8, 20, 26, 34, 43, 47], solution: [15, 29] },
+            { coins: [10, 17, 24, 32, 38, 45, 49], solution: [12, 40] }
+        ];
+        const idx = Math.min(coinsNeeded - 2, presets.length - 1);
+        return presets[idx];
+    }
+    
+    let studentPuzzles = new Map();
+    
+    function getPuzzleForStudent(studentId, levelIdx) {
+        const key = `${studentId}_${levelIdx}`;
+        if (studentPuzzles.has(key)) {
+            return studentPuzzles.get(key);
+        }
+        const config = LEVELS_CONFIG[levelIdx];
+        const { coins, solution } = generateSolvableCoins(config.coins, config.elephants);
+        const puzzle = {
+            level: levelIdx + 1,
+            coins: coins,
+            solution: solution,
+            elephantsCount: config.elephants
+        };
+        studentPuzzles.set(key, puzzle);
+        return puzzle;
+    }
+    
+    class StudentSession {
+        constructor(id, avatar) {
+            this.id = id;
+            this.avatar = avatar;
+            this.currentLevelIdx = 0;
+            this.currentPuzzle = null;
+            this.solved = false;
+            this.completed = false;
+            this.userElephants = [];
+            this.loadPuzzle();
+        }
+        
+        loadPuzzle() {
+            if (this.currentLevelIdx >= TOTAL_LEVELS) {
+                this.completed = true;
+                this.currentPuzzle = null;
+                return;
+            }
+            this.currentPuzzle = getPuzzleForStudent(this.id, this.currentLevelIdx);
+            this.solved = false;
+            this.userElephants = [];
+        }
+        
+        checkWin(clickedPos) {
+            if (this.solved || this.completed) return false;
+            const puzzle = this.currentPuzzle;
+            const needed = puzzle.elephantsCount;
+            
+            if (puzzle.coins.includes(clickedPos)) return false;
+            
+            if (!this.userElephants.includes(clickedPos)) {
+                if (this.userElephants.length < needed) {
+                    this.userElephants.push(clickedPos);
+                } else {
+                    return false;
+                }
+            } else {
+                this.userElephants = this.userElephants.filter(p => p !== clickedPos);
+                return false;
+            }
+            
+            if (this.userElephants.length === needed) {
+                const success = areAllCoinsCovered(puzzle.coins, this.userElephants);
+                if (success) {
+                    this.solved = true;
+                    return true;
+                } else {
+                    this.userElephants = [];
+                    return false;
+                }
+            }
+            return false;
+        }
+        
+        nextLevel() {
+            if (this.solved && !this.completed) {
+                this.currentLevelIdx++;
+                if (this.currentLevelIdx >= TOTAL_LEVELS) {
+                    this.completed = true;
+                    this.currentPuzzle = null;
+                } else {
+                    this.loadPuzzle();
+                }
+                return true;
+            }
+            return false;
+        }
+        
+        resetStudent() {
+            this.currentLevelIdx = 0;
+            this.completed = false;
+            this.loadPuzzle();
+        }
+        
+        getInfo() {
+            if (this.completed) return { completed: true };
+            return {
+                completed: false,
+                level: this.currentPuzzle.level,
+                coins: this.currentPuzzle.coins,
+                elephantsNeeded: this.currentPuzzle.elephantsCount,
+                solved: this.solved,
+                userElephants: this.userElephants
+            };
+        }
+    }
+    
+    let students = [];
+    
+    function updateGridLayout() {
+        const grid = document.getElementById('studentsGrid');
+        grid.classList.remove('grid-3col', 'grid-2x2');
+        if (students.length === 3) {
+            grid.classList.add('grid-3col');
+        } else if (students.length === 4) {
+            grid.classList.add('grid-2x2');
+        }
+    }
+    
+    function renderAll() {
+        const grid = document.getElementById('studentsGrid');
+        grid.innerHTML = '';
+        for (let i = 0; i < students.length; i++) {
+            const student = students[i];
+            const info = student.getInfo();
+            
+            const card = document.createElement('div');
+            card.className = 'student-card';
+            
+            let levelDisplay = '';
+            let puzzleHTML = '';
+            
+            if (info.completed) {
+                levelDisplay = '🏆';
+                puzzleHTML = `<div class="congrats">🎉 Ты собрал все монетки! 🎉<br>✨ ПОЗДРАВЛЯЕМ ✨</div>`;
+            } else {
+                levelDisplay = `${info.level}/10`;
+                const elephantIcon = info.elephantsNeeded === 1 ? "🐘" : "🐘🐘";
+                puzzleHTML = `
+                    <div class="elephant-indicator">
+                        <span class="label">нужно поставить:</span>
+                        <span>${elephantIcon}</span>
+                    </div>
+                    <div class="chessboard" id="board-${i}"></div>
+                    <div class="controls-card">
+                        <button class="next-btn" data-student="${i}" ${info.solved ? '' : 'disabled'}>▼ Следующий уровень</button>
+                        <button class="next-btn reset-student" data-student="${i}" data-reset="true">🔄 Сброс</button>
+                    </div>
+                `;
+            }
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="student-avatar">${student.avatar}</span>
+                    <span class="level-badge">${levelDisplay}</span>
+                </div>
+                <div class="puzzle-container">
+                    ${puzzleHTML}
+                </div>
+            `;
+            grid.appendChild(card);
+            
+            if (!info.completed) {
+                renderBoardForStudent(i, info);
+            }
+        }
+        updateGridLayout();
+        
+        document.querySelectorAll('.next-btn').forEach(btn => {
+            btn.removeEventListener('click', handlerNext);
+            btn.addEventListener('click', handlerNext);
+        });
+    }
+    
+    function handlerNext(e) {
+        const studentId = parseInt(e.currentTarget.dataset.student);
+        const isReset = e.currentTarget.dataset.reset === 'true';
+        if (isReset) {
+            students[studentId].resetStudent();
+            renderAll();
+        } else {
+            const student = students[studentId];
+            const canGo = student.nextLevel();
+            if (canGo) renderAll();
+        }
+    }
+    
+    function renderBoardForStudent(studentId, info) {
+        const boardDiv = document.getElementById(`board-${studentId}`);
+        if (!boardDiv) return;
+        boardDiv.innerHTML = '';
+        
+        const coinsSet = new Set(info.coins);
+        const userElephants = info.userElephants || [];
+        const needed = info.elephantsNeeded;
+        
+        for (let i = 0; i < 49; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            if (coinsSet.has(i)) cell.classList.add('coin');
+            if (userElephants.includes(i)) {
+                if (needed === 2 && userElephants.indexOf(i) === 1) cell.classList.add('elephant-second');
+                else cell.classList.add('elephant');
+            }
+            
+            cell.addEventListener('click', (function(pos) {
+                return () => {
+                    const student = students[studentId];
+                    if (student.completed) return;
+                    const studentInfo = student.getInfo();
+                    if (studentInfo.solved) return;
+                    const win = student.checkWin(pos);
+                    renderAll();
+                };
+            })(i));
+            boardDiv.appendChild(cell);
+        }
+    }
+    
+    function initStudents(count) {
+        studentPuzzles.clear();
+        students = [];
+        for (let i = 0; i < count; i++) {
+            const avatar = AVATARS[i % AVATARS.length];
+            students.push(new StudentSession(i, avatar));
+        }
+        renderAll();
+    }
+    
+    function resetAll() {
+        if (students.length) {
+            studentPuzzles.clear();
+            initStudents(students.length);
+        } else {
+            initStudents(3);
+        }
+    }
+    
+    document.getElementById('applyCountBtn').addEventListener('click', () => {
+        let newCount = parseInt(document.getElementById('studentCount').value);
+        if (isNaN(newCount)) newCount = 3;
+        newCount = Math.min(6, Math.max(1, newCount));
+        initStudents(newCount);
+    });
+    
+    document.getElementById('resetAllBtn').addEventListener('click', resetAll);
+    
+    initStudents(3);
+</script>
+</body>
+</html>

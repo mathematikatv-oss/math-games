@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Математический переполох — сезонные цветовые схемы</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 8px;
+            font-family: 'Segoe UI', 'Roboto', 'Trebuchet MS', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: background 0.3s ease;
+        }
+
+        /* ---- Зимняя тема (голубые тона) ---- */
+        body.theme-winter {
+            background: linear-gradient(145deg, #2c5f7a 0%, #1a3f55 100%);
+        }
+        body.theme-winter .tree {
+            background: #4a7c9c;
+            box-shadow: inset 0 0 0 2px #a3cce0, 0 6px 12px rgba(0,0,0,0.3);
+            border-bottom: 5px solid #2c5f7a;
+        }
+        body.theme-winter .stack {
+            background: #d4eaf5;
+            box-shadow: 0 3px 0 #7fa0b5;
+            border: 1px solid #b0d4ec;
+        }
+        body.theme-winter .card {
+            background: radial-gradient(circle at 30% 30%, #7bc5e8, #2e86c1);
+            border-radius: 50%;
+        }
+        body.theme-winter .card-value, body.theme-winter .card-points {
+            text-shadow: 1px 1px 0 #0e3a5a;
+        }
+
+        /* ---- Летняя тема (зелёные тона) ---- */
+        body.theme-summer {
+            background: linear-gradient(145deg, #3b8a3b 0%, #1f5a1f 100%);
+        }
+        body.theme-summer .tree {
+            background: #5cb85c;
+            box-shadow: inset 0 0 0 2px #a0d6a0, 0 6px 12px rgba(0,0,0,0.3);
+            border-bottom: 5px solid #2d6a2d;
+        }
+        body.theme-summer .stack {
+            background: #e0f5e0;
+            box-shadow: 0 3px 0 #6f9e6f;
+            border: 1px solid #b3e0b3;
+        }
+        body.theme-summer .card {
+            background: radial-gradient(circle at 30% 30%, #8dd98d, #3c8c3c);
+            border-radius: 50% 50% 35% 35% / 60% 60% 30% 30%;
+        }
+        body.theme-summer .card::before {
+            content: "🌿";
+            position: absolute;
+            font-size: 1.2rem;
+            opacity: 0.3;
+            top: -5px;
+            left: 5px;
+        }
+
+        /* ---- Осенняя тема (жёлтые/золотистые тона) ---- */
+        body.theme-autumn {
+            background: linear-gradient(145deg, #c48a1f 0%, #8b5a0e 100%);
+        }
+        body.theme-autumn .tree {
+            background: #e0a82b;
+            box-shadow: inset 0 0 0 2px #f5cc7a, 0 6px 12px rgba(0,0,0,0.3);
+            border-bottom: 5px solid #a06f14;
+        }
+        body.theme-autumn .stack {
+            background: #fef3cf;
+            box-shadow: 0 3px 0 #c49a3a;
+            border: 1px solid #f0daa0;
+        }
+        body.theme-autumn .card {
+            background: radial-gradient(ellipse at 30% 40%, #f0bc5e, #cc8620);
+            border-radius: 50% 50% 40% 40% / 60% 60% 30% 30%;
+        }
+        body.theme-autumn .card::before {
+            content: "🍂";
+            position: absolute;
+            font-size: 1.2rem;
+            opacity: 0.3;
+            top: -8px;
+            right: 5px;
+        }
+
+        /* ---- Весенняя тема (розовые тона) ---- */
+        body.theme-spring {
+            background: linear-gradient(145deg, #d16ba5 0%, #a24072 100%);
+        }
+        body.theme-spring .tree {
+            background: #e88bc2;
+            box-shadow: inset 0 0 0 2px #f9c4e4, 0 6px 12px rgba(0,0,0,0.3);
+            border-bottom: 5px solid #b54385;
+        }
+        body.theme-spring .stack {
+            background: #ffe0f0;
+            box-shadow: 0 3px 0 #c480a5;
+            border: 1px solid #fbc0e0;
+        }
+        body.theme-spring .card {
+            background: radial-gradient(circle at 30% 30%, #ffb3d9, #e65c9c);
+            border-radius: 50% 50% 45% 45% / 60% 60% 35% 35%;
+            clip-path: none;
+        }
+        body.theme-spring .card::before {
+            content: "🌸";
+            position: absolute;
+            font-size: 1.3rem;
+            opacity: 0.4;
+            top: -8px;
+            left: -5px;
+            pointer-events: none;
+        }
+
+        /* ---- Общая сетка и остальные стили (без изменений, только цвета адаптированы) ---- */
+        .game-container {
+            width: 100%;
+            height: 98vh;
+            background: rgba(0,0,0,0.3);
+            border-radius: 48px 48px 32px 32px;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            padding: 12px;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            grid-template-rows: auto 1fr auto;
+            gap: 12px;
+        }
+
+        .game-header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .game-header h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            font-family: 'Comic Neue', cursive;
+            text-shadow: 3px 3px 0 #b53b1a;
+            color: #f9f3d9;
+        }
+        .game-header .sub {
+            font-style: italic;
+            font-size: 0.75rem;
+            color: #ffefb0;
+            margin-top: 2px;
+        }
+
+        .tree-column {
+            border-radius: 36px;
+            padding: 8px;
+            overflow-y: auto;
+        }
+        .tree {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .stack {
+            border-radius: 20px;
+            padding: 6px 4px;
+            min-width: 60px;
+        }
+        .cards {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card {
+            width: var(--ball-size, 46px);
+            height: var(--ball-size, 46px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            transition: width 0.1s ease, height 0.1s ease;
+            position: relative;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.2), inset 0 1px 3px rgba(255,255,200,0.8);
+        }
+        .card-value {
+            font-size: clamp(0.7rem, calc(var(--ball-size, 46px) * 0.3), 1.3rem);
+            color: white;
+            font-family: monospace;
+            font-weight: bold;
+            background: rgba(0,0,0,0.6);
+            padding: 3px 6px;
+            border-radius: 20px;
+            text-shadow: 1px 1px 0 black;
+            z-index: 2;
+        }
+        .card-points {
+            font-size: clamp(0.5rem, calc(var(--ball-size, 46px) * 0.22), 0.75rem);
+            background: rgba(0,0,0,0.6);
+            color: gold;
+            border-radius: 20px;
+            padding: 2px 5px;
+            margin-top: 3px;
+            z-index: 2;
+            text-shadow: 0 0 2px black;
+        }
+        .card-points::before {
+            content: "❄️";
+            margin-right: 2px;
+        }
+        body.theme-summer .card-points::before { content: "🌞"; }
+        body.theme-autumn .card-points::before { content: "🍁"; }
+        body.theme-spring .card-points::before { content: "🌸"; }
+
+        .controls-column {
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+            border-radius: 36px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .players-area {
+            grid-column: 1 / -1;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            padding: 8px;
+        }
+
+        .control-group {
+            background: rgba(30,30,20,0.6);
+            border-radius: 28px;
+            padding: 12px;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .setting-item label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #f9f3d9;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+        }
+        select, .scale-controls {
+            background: #fff3cf;
+            border: none;
+            border-radius: 30px;
+            padding: 5px 12px;
+            font-weight: bold;
+        }
+        .scale-controls {
+            display: flex;
+            gap: 6px;
+            background: #2c2b1faa;
+            padding: 2px 10px;
+        }
+        .scale-controls button {
+            background: #e6b422;
+            box-shadow: 0 1px 0 #9b5e2c;
+            font-size: 1rem;
+            padding: 2px 10px;
+            min-width: 32px;
+        }
+        .scale-controls span {
+            font-size: 0.8rem;
+            background: #00000088;
+            padding: 2px 8px;
+            border-radius: 30px;
+            color: white;
+        }
+        .dice-area {
+            text-align: center;
+        }
+        .dice-set {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .die {
+            width: min(9vw, 73px);
+            height: min(9vw, 73px);
+            background: linear-gradient(145deg, #f9f9f9, #e0e0e0);
+            border-radius: 18px;
+            box-shadow: 0 6px 0 #a0a0a0, inset 0 1px 2px rgba(255,255,255,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c2b1f;
+            transition: transform 0.05s linear, box-shadow 0.05s linear;
+        }
+        .die:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #a0a0a0;
+        }
+        .die small {
+            font-size: 0.7rem;
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 20px;
+            margin-top: 5px;
+        }
+        .timer-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 12px 0;
+        }
+        .timer {
+            font-size: 1.6rem;
+            font-family: monospace;
+            background: #000000cc;
+            color: #ffefb0;
+            padding: 6px 12px;
+            border-radius: 50px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 black;
+            min-width: 110px;
+            text-align: center;
+        }
+        .time-select {
+            background: #fff3cf;
+            border: none;
+            border-radius: 30px;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #ffc857;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            padding: 6px 14px;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.1s;
+            box-shadow: 0 2px 0 #9b5e2c;
+            color: #2c2b1f;
+        }
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #9b5e2c;
+        }
+        button:disabled {
+            opacity: 0.5;
+            transform: none;
+        }
+
+        .players-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .player-card {
+            background: #f9edc1;
+            color: #2d421b;
+            border-radius: 24px;
+            padding: 8px 12px;
+            min-width: 200px;
+            box-shadow: 0 3px 0 #785e2e;
+            transition: 0.1s;
+        }
+        .player-card.paused-for-player {
+            background: #ffe0a3;
+            border: 2px solid #d6430e;
+        }
+        .player-name {
+            font-weight: bold;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e6b422;
+            gap: 6px;
+            color: #2d421b;
+            text-shadow: none;
+        }
+        .score {
+            background: gold;
+            padding: 0 6px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            color: #2d421b;
+        }
+        .edit-name-btn {
+            background: #e6b422;
+            border: none;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            cursor: pointer;
+            box-shadow: none;
+            color: #2d2b1a;
+        }
+        .player-controls {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .ready-btn {
+            background: #49b382;
+            box-shadow: 0 2px 0 #2c6b47;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            color: white;
+        }
+        .answer-area {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .answer-input {
+            padding: 5px;
+            border-radius: 40px;
+            border: none;
+            background: #fff3cf;
+            font-family: monospace;
+            text-align: center;
+        }
+        .submit-answer-btn {
+            background: #ffc857;
+            font-size: 0.7rem;
+            padding: 4px;
+            box-shadow: 0 2px 0 #9b5e2c;
+        }
+        .status-text {
+            font-size: 0.7rem;
+            background: #fff0cf;
+            border-radius: 30px;
+            padding: 3px 8px;
+            text-align: center;
+            color: #2d421b;
+        }
+        .remove-btn {
+            background: #bb3e1e;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            margin-top: 5px;
+        }
+        .add-player {
+            background: #5c4733;
+            color: #f7e5b1;
+            box-shadow: none;
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: #fdf8e7;
+            color: #2d421b;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 48px;
+            width: 90%;
+            max-width: 450px;
+            border: 3px solid #ffd966;
+        }
+        .modal-content h2 { margin-top: 0; text-align: center; color: #b33e1c; }
+        .close { color: #b97f3a; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #d6430e; }
+        footer {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.7rem;
+            color: #eee;
+        }
+
+        @media (max-width: 800px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto auto;
+                gap: 10px;
+            }
+            .controls-column {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .control-group {
+                flex: 1;
+            }
+            .die {
+                width: min(12vw, 65px);
+                height: min(12vw, 65px);
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body class="theme-winter">
+<div class="game-container">
+    <div class="game-header">
+        <h1 id="mainTitle">🎄 МАТЕМАТИЧЕСКИЙ ПЕРЕПОЛОХ 🎲</h1>
+        <div class="sub" id="subTitle">❄️ меняй размер шаров и сезон настроения ❄️</div>
+    </div>
+
+    <div class="tree-column">
+        <div id="treeContainer" class="tree"></div>
+    </div>
+
+    <div class="controls-column">
+        <div class="control-group">
+            <div class="setting-item">
+                <label>🎯 Уровень:</label>
+                <select id="difficultySelect">
+                    <option value="easy">🌟 Лёгкий</option>
+                    <option value="medium">⭐ Средний</option>
+                    <option value="hard" selected>🔥 Сложный</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label>🎨 Сезон:</label>
+                <select id="themeSelect">
+                    <option value="winter" selected>❄️ Зимний</option>
+                    <option value="summer">🌞 Летний</option>
+                    <option value="autumn">🍂 Осенний</option>
+                    <option value="spring">🌸 Весенний</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label>🔍 Размер шаров:</label>
+                <div class="scale-controls">
+                    <button id="zoomOutBtn">−</button>
+                    <span id="scaleValue">100%</span>
+                    <button id="zoomInBtn">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group dice-area">
+            <div class="dice-set" id="diceSet"></div>
+            <div class="timer-row">
+                <div class="timer" id="timerDisplay">01:30</div>
+                <select id="timeSelect" class="time-select">
+                    <option value="30">30 сек</option>
+                    <option value="60">1 мин</option>
+                    <option value="90" selected>1:30</option>
+                    <option value="120">2 мин</option>
+                    <option value="180">3 мин</option>
+                </select>
+            </div>
+            <div class="action-buttons">
+                <button id="rollBtn">🎲 БРОСИТЬ</button>
+                <button id="pauseBtn">⏸️ ПАУЗА</button>
+                <button id="rulesBtn">📜 ПРАВИЛА</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="players-area">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 6px;">
+            <h3 style="margin:0; font-size:1.1rem;">✨ ИГРОКИ ✨</h3>
+            <button id="addPlayerBtn" class="add-player">➕ Добавить игрока</button>
+        </div>
+        <div id="playersList" class="players-list"></div>
+        <footer>🎄 Нажмите «ГОТОВ» у игрока → появится поле ввода → введите выражение → «ПРИНЯТЬ» → таймер продолжается.</footer>
+    </div>
+</div>
+
+<div id="rulesModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>📜 Правила «Математический переполох»</h2>
+        <p>🎯 <strong>Цель:</strong> набрать как можно больше очков, забирая шары с ёлки.</p>
+        <p>🎲 <strong>Кубики и сложность:</strong><br>
+        - 🌟 Лёгкий: 2 кубика d6. Используйте 1 или 2 числа. Ёлка: 36 шаров (числа 36–1).<br>
+        - ⭐ Средний: 3 кубика (d6, d8, d10). Используйте 2 или 3 числа. Ёлка: 75 шаров (числа 75–1).<br>
+        - 🔥 Сложный: 4 кубика (d6, d8, d10, d12). Используйте 2‑4 числа. Полная ёлка (100 шаров).</p>
+        <p>⏱️ <strong>Раунд:</strong> 1:30. Игроки устно называют выражения.</p>
+        <p>🧮 <strong>Выражение:</strong> каждое число с кубика – один раз. Операции +, -, *, /, скобки. Результат целый.</p>
+        <p>🎄 <strong>Взятие шара:</strong> результат совпадает с числом на видимой карточке → игрок получает её очки (❄️).</p>
+        <p>❌ <strong>Штраф:</strong> ошибка или числа нет на ёлке → -1 очко.</p>
+        <p>⏸️ <strong>Пауза по готовности:</strong> ведущий нажимает «ГОТОВ» у игрока → таймер останавливается. После ввода ответа таймер продолжается.</p>
+        <p>🏆 <strong>Победа:</strong> когда все шары разобраны.</p>
+        <p style="text-align:center;">✨ <strong>Удачи юные математики!</strong> ✨</p>
+    </div>
+</div>
+
+<script>
+    // ========== ПОЛНОСТЬЮ СОХРАНЁННАЯ ЛОГИКА ИГРЫ (БЕЗ ИЗМЕНЕНИЙ) ==========
+    const EASY_ROWS = [
+        { stacks: 1, range: [36, 31], points: 6 },
+        { stacks: 2, range: [30, 16], points: 4 },
+        { stacks: 3, range: [15, 1],  points: 2 }
+    ];
+    const MEDIUM_ROWS = [
+        { stacks: 1, range: [75, 61], points: 10 },
+        { stacks: 2, range: [60, 46], points: 8 },
+        { stacks: 3, range: [45, 31], points: 6 },
+        { stacks: 4, range: [30, 16], points: 4 },
+        { stacks: 5, range: [15, 1],  points: 2 }
+    ];
+    const HARD_ROWS = [
+        { stacks: 1, range: [99, 95], points: 10 },
+        { stacks: 2, range: [94, 85], points: 8 },
+        { stacks: 3, range: [84, 70], points: 6 },
+        { stacks: 4, range: [69, 50], points: 4 },
+        { stacks: 5, range: [49, 25], points: 2 },
+        { stacks: 6, range: [24, 1],  points: 1 }
+    ];
+
+    let currentRows = HARD_ROWS;
+    let stacks = [];
+    let players = [];
+    let roundActive = false;
+    let timerInterval = null;
+    let timeLeft = 90;
+    let isPaused = false;
+    let pausedByPlayer = null;
+    let currentDice = [];
+
+    const DIFFICULTY_CONFIG = {
+        easy: { name: "Лёгкий", diceCount: 2, diceTypes: ['d6','d6'], minNumbers: 1, maxNumbers: 2, rows: EASY_ROWS },
+        medium: { name: "Средний", diceCount: 3, diceTypes: ['d6','d8','d10'], minNumbers: 2, maxNumbers: 3, rows: MEDIUM_ROWS },
+        hard: { name: "Сложный", diceCount: 4, diceTypes: ['d6','d8','d10','d12'], minNumbers: 2, maxNumbers: 4, rows: HARD_ROWS }
+    };
+    let currentDifficulty = 'hard';
+
+    let currentScalePercent = 100;
+    const MIN_SCALE = 50;
+    const MAX_SCALE = 300;
+    function setBallSize(percent) {
+        let baseSize = 46;
+        let newSize = Math.round(baseSize * percent / 100);
+        document.documentElement.style.setProperty('--ball-size', `${newSize}px`);
+        document.getElementById('scaleValue').innerText = `${percent}%`;
+        currentScalePercent = percent;
+    }
+    function zoomIn() { if (currentScalePercent < MAX_SCALE) setBallSize(currentScalePercent + 10); }
+    function zoomOut() { if (currentScalePercent > MIN_SCALE) setBallSize(currentScalePercent - 10); }
+
+    let currentTheme = 'winter';
+    function applyTheme(theme) {
+        currentTheme = theme;
+        document.body.className = '';
+        document.body.classList.add(`theme-${theme}`);
+        const title = document.getElementById('mainTitle');
+        const sub = document.getElementById('subTitle');
+        if (title) {
+            if (theme === 'summer') title.innerHTML = '🌞 МАТЕМАТИЧЕСКИЙ ПЕРЕПОЛОХ 🌿';
+            else if (theme === 'autumn') title.innerHTML = '🍂 МАТЕМАТИЧЕСКИЙ ПЕРЕПОЛОХ 🍁';
+            else if (theme === 'spring') title.innerHTML = '🌸 МАТЕМАТИЧЕСКИЙ ПЕРЕПОЛОХ 🌷';
+            else title.innerHTML = '❄️ МАТЕМАТИЧЕСКИЙ ПЕРЕПОЛОХ 🎲';
+        }
+        if (sub) {
+            if (theme === 'summer') sub.innerHTML = '🌿 меняй размер шаров и наслаждайся летом 🌿';
+            else if (theme === 'autumn') sub.innerHTML = '🍂 меняй размер шаров и сезон настроения 🍂';
+            else if (theme === 'spring') sub.innerHTML = '🌸 меняй размер шаров и сезон настроения 🌸';
+            else sub.innerHTML = '❄️ меняй размер шаров и сезон настроения ❄️';
+        }
+        renderTree();
+    }
+
+    let rollBtn = document.getElementById('rollBtn');
+    let pauseBtn = document.getElementById('pauseBtn');
+    let timerDisplay = document.getElementById('timerDisplay');
+    let timeSelect = document.getElementById('timeSelect');
+    let treeContainer = document.getElementById('treeContainer');
+    let playersContainer = document.getElementById('playersList');
+    let addPlayerBtn = document.getElementById('addPlayerBtn');
+    let rulesBtn = document.getElementById('rulesBtn');
+    let modal = document.getElementById('rulesModal');
+    let closeSpan = document.querySelector('.close');
+    let difficultySelect = document.getElementById('difficultySelect');
+    let themeSelect = document.getElementById('themeSelect');
+    let diceSetDiv = document.getElementById('diceSet');
+    let zoomInBtn = document.getElementById('zoomInBtn');
+    let zoomOutBtn = document.getElementById('zoomOutBtn');
+
+    rulesBtn.onclick = () => modal.style.display = "block";
+    closeSpan.onclick = () => modal.style.display = "none";
+    window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; };
+    zoomInBtn.onclick = zoomIn;
+    zoomOutBtn.onclick = zoomOut;
+    themeSelect.onchange = (e) => { applyTheme(e.target.value); };
+    timeSelect.onchange = () => { if (!roundActive) { timeLeft = parseInt(timeSelect.value); updateTimerDisplay(); } };
+
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+        return arr;
+    }
+
+    function buildStacks(rows) {
+        let allStacks = [];
+        for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) {
+            const row = rows[rowIdx];
+            let numbers = [];
+            for (let n = row.range[0]; n >= row.range[1]; n--) numbers.push({ num: n, points: row.points });
+            numbers = shuffleArray(numbers);
+            let stacksCount = row.stacks;
+            let tempStacks = Array(stacksCount).fill().map(() => []);
+            for (let i = 0; i < numbers.length; i++) tempStacks[i % stacksCount].push(numbers[i]);
+            for (let st of tempStacks) {
+                allStacks.push({ cards: st, rowIndex: rowIdx });
+            }
+        }
+        return allStacks;
+    }
+
+    function rebalanceRow(rowIndex) {
+        const rowStacksIndices = [];
+        for (let i = 0; i < stacks.length; i++) {
+            if (stacks[i].rowIndex === rowIndex) rowStacksIndices.push(i);
+        }
+        if (rowStacksIndices.length === 0) return;
+        let allCards = [];
+        for (let idx of rowStacksIndices) {
+            allCards.push(...stacks[idx].cards);
+        }
+        if (allCards.length === 0) return;
+        allCards = shuffleArray(allCards);
+        const numStacks = rowStacksIndices.length;
+        for (let i = 0; i < rowStacksIndices.length; i++) {
+            stacks[rowStacksIndices[i]].cards = [];
+        }
+        for (let i = 0; i < allCards.length; i++) {
+            stacks[rowStacksIndices[i % numStacks]].cards.push(allCards[i]);
+        }
+        for (let idx of rowStacksIndices) {
+            stacks[idx].cards = shuffleArray(stacks[idx].cards);
+        }
+        renderTree();
+    }
+
+    function renderTree() {
+        treeContainer.innerHTML = '';
+        let stackIdx = 0;
+        for (let rowIdx = 0; rowIdx < currentRows.length; rowIdx++) {
+            const row = currentRows[rowIdx];
+            const rowDiv = document.createElement('div'); rowDiv.className = 'row';
+            for (let i = 0; i < row.stacks; i++) {
+                if (stackIdx >= stacks.length) break;
+                const stack = stacks[stackIdx++];
+                const stackDiv = document.createElement('div'); stackDiv.className = 'stack';
+                const cardsDiv = document.createElement('div'); cardsDiv.className = 'cards';
+                if (stack.cards.length > 0) {
+                    const topCard = stack.cards[stack.cards.length - 1];
+                    const cardDiv = document.createElement('div'); cardDiv.className = 'card';
+                    cardDiv.setAttribute('data-points', topCard.points);
+                    cardDiv.innerHTML = `<div class="card-value">${topCard.num}</div><div class="card-points">${topCard.points}</div>`;
+                    cardsDiv.appendChild(cardDiv);
+                } else {
+                    const emptyDiv = document.createElement('div'); emptyDiv.className = 'card'; emptyDiv.style.opacity = '0.3'; emptyDiv.style.background = '#888';
+                    emptyDiv.innerHTML = `<div class="card-value">---</div>`; cardsDiv.appendChild(emptyDiv);
+                }
+                stackDiv.appendChild(cardsDiv); rowDiv.appendChild(stackDiv);
+            }
+            treeContainer.appendChild(rowDiv);
+        }
+        if (stacks.every(s => s.cards.length === 0)) {
+            const msg = document.createElement('div'); msg.style.textAlign = 'center'; msg.style.padding = '15px'; msg.style.fontSize = '1.2rem';
+            msg.innerText = '🎉 ЁЛКА ПУСТА! ИГРА ОКОНЧЕНА 🎉'; treeContainer.appendChild(msg);
+        }
+    }
+
+    function getVisibleNumbers() {
+        let set = new Set();
+        for (let stack of stacks) if (stack.cards.length > 0) set.add(stack.cards[stack.cards.length - 1].num);
+        return set;
+    }
+
+    function removeTopCardByNumber(targetNum) {
+        for (let stackIdx = 0; stackIdx < stacks.length; stackIdx++) {
+            const stack = stacks[stackIdx];
+            if (stack.cards.length > 0 && stack.cards[stack.cards.length - 1].num === targetNum) {
+                const removed = stack.cards.pop();
+                if (stack.cards.length === 0) {
+                    rebalanceRow(stack.rowIndex);
+                } else {
+                    renderTree();
+                }
+                return removed;
+            }
+        }
+        return null;
+    }
+
+    function renderDiceIcons() {
+        diceSetDiv.innerHTML = '';
+        const cfg = DIFFICULTY_CONFIG[currentDifficulty];
+        for (let i = 0; i < cfg.diceCount; i++) {
+            const dieDiv = document.createElement('div'); dieDiv.className = 'die';
+            dieDiv.innerHTML = `0<small>${cfg.diceTypes[i]}</small>`;
+            diceSetDiv.appendChild(dieDiv);
+        }
+    }
+
+    function getRandomDiceValues() {
+        const cfg = DIFFICULTY_CONFIG[currentDifficulty];
+        let values = [];
+        for (let i = 0; i < cfg.diceCount; i++) {
+            let max = parseInt(cfg.diceTypes[i].substring(1));
+            values.push(Math.floor(Math.random() * max) + 1);
+        }
+        return values;
+    }
+
+    function updateDiceDisplay() {
+        let diceDivs = document.querySelectorAll('#diceSet .die');
+        const cfg = DIFFICULTY_CONFIG[currentDifficulty];
+        for (let i = 0; i < diceDivs.length && i < currentDice.length; i++) {
+            diceDivs[i].innerHTML = `${currentDice[i]}<small>${cfg.diceTypes[i]}</small>`;
+        }
+    }
+
+    function validateExpression(expr, diceVals) {
+        if (!expr.trim()) return { valid: false, error: "Пустое выражение" };
+        const allowedRegex = /^[\d\s\+\-\*\/\(\)\.]+$/;
+        if (!allowedRegex.test(expr)) return { valid: false, error: "Недопустимые символы" };
+        const numbersMatch = expr.match(/\d+(?:\.\d+)?/g);
+        if (!numbersMatch) return { valid: false, error: "Нет чисел" };
+        let used = numbersMatch.map(Number);
+        const cfg = DIFFICULTY_CONFIG[currentDifficulty];
+        if (used.length < cfg.minNumbers || used.length > cfg.maxNumbers)
+            return { valid: false, error: `Используйте от ${cfg.minNumbers} до ${cfg.maxNumbers} чисел` };
+        let diceCopy = [...diceVals];
+        for (let u of used) {
+            let idx = diceCopy.indexOf(u);
+            if (idx === -1) return { valid: false, error: `Число ${u} не выпало` };
+            diceCopy.splice(idx, 1);
+        }
+        let result;
+        try {
+            const fn = new Function('return (' + expr + ')');
+            result = fn();
+            if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) throw new Error();
+            result = Math.round(result * 1e8) / 1e8;
+        } catch(e) { return { valid: false, error: "Ошибка вычисления" }; }
+        const intResult = Math.round(result);
+        if (Math.abs(result - intResult) > 1e-6) return { valid: false, error: "Результат не целый" };
+        return { valid: true, value: intResult };
+    }
+
+    function onReady(playerIdx) {
+        if (!roundActive) { alert("Раунд не активен! Сначала бросьте кубики."); return; }
+        if (isPaused) { alert("Таймер уже на паузе. Сначала завершите ответ текущего игрока."); return; }
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = null;
+        isPaused = true;
+        pausedByPlayer = playerIdx;
+
+        const playerCard = document.getElementById(`player-card-${playerIdx}`);
+        const readyBtn = playerCard.querySelector('.ready-btn');
+        const answerArea = playerCard.querySelector('.answer-area');
+        readyBtn.style.display = 'none';
+        answerArea.style.display = 'flex';
+        const answerInput = answerArea.querySelector('.answer-input');
+        answerInput.value = '';
+        answerInput.focus();
+        const statusSpan = playerCard.querySelector('.status-text');
+        statusSpan.innerText = "✍️ ввод ответа";
+        playerCard.classList.add('paused-for-player');
+    }
+
+    function submitAnswer(playerIdx) {
+        if (!roundActive || !isPaused || pausedByPlayer !== playerIdx) {
+            alert("Нет активного запроса ответа для этого игрока.");
+            return;
+        }
+        const playerCard = document.getElementById(`player-card-${playerIdx}`);
+        const answerInput = playerCard.querySelector('.answer-input');
+        const rawExpr = answerInput.value.trim();
+        if (!rawExpr) { alert("Введите выражение!"); return; }
+        const player = players[playerIdx];
+        const check = validateExpression(rawExpr, currentDice);
+        if (!check.valid) {
+            player.score -= 1;
+            const statusSpan = playerCard.querySelector('.status-text');
+            statusSpan.innerText = `❌ ошибка: ${check.error} (-1)`;
+            const readyBtn = playerCard.querySelector('.ready-btn');
+            const answerAreaDiv = playerCard.querySelector('.answer-area');
+            readyBtn.style.display = 'block';
+            answerAreaDiv.style.display = 'none';
+            playerCard.classList.remove('paused-for-player');
+            updatePlayerScoreUI(playerIdx);
+            resumeTimerAfterAnswer();
+            return;
+        }
+        const targetNumber = check.value;
+        const visible = getVisibleNumbers();
+        if (!visible.has(targetNumber)) {
+            player.score -= 1;
+            const statusSpan = playerCard.querySelector('.status-text');
+            statusSpan.innerText = `❌ числа ${targetNumber} нет на ёлке (-1)`;
+            const readyBtn = playerCard.querySelector('.ready-btn');
+            const answerAreaDiv = playerCard.querySelector('.answer-area');
+            readyBtn.style.display = 'block';
+            answerAreaDiv.style.display = 'none';
+            playerCard.classList.remove('paused-for-player');
+            updatePlayerScoreUI(playerIdx);
+            resumeTimerAfterAnswer();
+            return;
+        }
+        const removed = removeTopCardByNumber(targetNumber);
+        if (removed) {
+            player.score += removed.points;
+            const statusSpan = playerCard.querySelector('.status-text');
+            statusSpan.innerText = `✅ +${removed.points} (${targetNumber})`;
+            const readyBtn = playerCard.querySelector('.ready-btn');
+            const answerAreaDiv = playerCard.querySelector('.answer-area');
+            readyBtn.style.display = 'block';
+            answerAreaDiv.style.display = 'none';
+            playerCard.classList.remove('paused-for-player');
+            updatePlayerScoreUI(playerIdx);
+            if (getVisibleNumbers().size === 0 && stacks.every(s => s.cards.length === 0)) endGame();
+            resumeTimerAfterAnswer();
+        } else {
+            player.score -= 1;
+            const statusSpan = playerCard.querySelector('.status-text');
+            statusSpan.innerText = `❌ карточка уже взята (-1)`;
+            const readyBtn = playerCard.querySelector('.ready-btn');
+            const answerAreaDiv = playerCard.querySelector('.answer-area');
+            readyBtn.style.display = 'block';
+            answerAreaDiv.style.display = 'none';
+            playerCard.classList.remove('paused-for-player');
+            updatePlayerScoreUI(playerIdx);
+            resumeTimerAfterAnswer();
+        }
+    }
+
+    function updatePlayerScoreUI(playerIdx) {
+        const playerCard = document.getElementById(`player-card-${playerIdx}`);
+        const scoreSpan = playerCard.querySelector('.score-value');
+        if (scoreSpan) scoreSpan.innerText = players[playerIdx].score;
+    }
+
+    function resumeTimerAfterAnswer() {
+        if (!roundActive) return;
+        if (isPaused) {
+            isPaused = false;
+            pausedByPlayer = null;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!roundActive || isPaused) return;
+                if (timeLeft <= 1) { clearInterval(timerInterval); timerInterval = null; endRound(); }
+                else { timeLeft--; updateTimerDisplay(); }
+            }, 1000);
+            for (let i = 0; i < players.length; i++) {
+                const card = document.getElementById(`player-card-${i}`);
+                if (card) {
+                    const statusSpan = card.querySelector('.status-text');
+                    if (statusSpan && !card.classList.contains('paused-for-player')) {
+                        statusSpan.innerText = roundActive ? "🏃‍♂️ активен" : "⏳ ожидание";
+                    }
+                }
+            }
+        }
+    }
+
+    function toggleManualPause() {
+        if (!roundActive) { alert("Нет активного раунда."); return; }
+        if (isPaused) {
+            if (pausedByPlayer !== null) { alert("Сначала обработайте ответ игрока."); return; }
+            isPaused = false;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!roundActive || isPaused) return;
+                if (timeLeft <= 1) { clearInterval(timerInterval); timerInterval = null; endRound(); }
+                else { timeLeft--; updateTimerDisplay(); }
+            }, 1000);
+            pauseBtn.innerHTML = "⏸️ ПАУЗА";
+            for (let i = 0; i < players.length; i++) {
+                const card = document.getElementById(`player-card-${i}`);
+                if (card) {
+                    const statusSpan = card.querySelector('.status-text');
+                    if (statusSpan && !card.classList.contains('paused-for-player')) {
+                        statusSpan.innerText = roundActive ? "🏃‍♂️ активен" : "⏳ ожидание";
+                    }
+                }
+            }
+        } else {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            isPaused = true;
+            pausedByPlayer = null;
+            pauseBtn.innerHTML = "▶️ ПРОДОЛЖИТЬ";
+            for (let i = 0; i < players.length; i++) {
+                const card = document.getElementById(`player-card-${i}`);
+                if (card) {
+                    const statusSpan = card.querySelector('.status-text');
+                    if (statusSpan && !card.classList.contains('paused-for-player')) {
+                        statusSpan.innerText = "⏸️ пауза";
+                    }
+                }
+            }
+        }
+    }
+
+    function startRound() {
+        if (players.length === 0) { alert("Добавьте игроков!"); return; }
+        if (roundActive) return;
+        currentDice = getRandomDiceValues();
+        updateDiceDisplay();
+        roundActive = true;
+        isPaused = false;
+        pausedByPlayer = null;
+        pauseBtn.innerHTML = "⏸️ ПАУЗА";
+        timeLeft = parseInt(timeSelect.value);
+        updateTimerDisplay();
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (!roundActive || isPaused) return;
+            if (timeLeft <= 1) { clearInterval(timerInterval); timerInterval = null; endRound(); }
+            else { timeLeft--; updateTimerDisplay(); }
+        }, 1000);
+        rollBtn.disabled = true;
+        pauseBtn.disabled = false;
+        for (let i = 0; i < players.length; i++) {
+            const card = document.getElementById(`player-card-${i}`);
+            if (card) {
+                const readyBtn = card.querySelector('.ready-btn');
+                const answerAreaDiv = card.querySelector('.answer-area');
+                readyBtn.disabled = false;
+                readyBtn.style.display = 'block';
+                answerAreaDiv.style.display = 'none';
+                const statusSpan = card.querySelector('.status-text');
+                statusSpan.innerText = "🏃‍♂️ активен";
+                card.classList.remove('paused-for-player');
+            }
+        }
+    }
+
+    function endRound() {
+        if (!roundActive) return;
+        roundActive = false;
+        isPaused = false;
+        pausedByPlayer = null;
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = null;
+        rollBtn.disabled = false;
+        pauseBtn.disabled = true;
+        for (let i = 0; i < players.length; i++) {
+            const card = document.getElementById(`player-card-${i}`);
+            if (card) {
+                const readyBtn = card.querySelector('.ready-btn');
+                const answerAreaDiv = card.querySelector('.answer-area');
+                readyBtn.disabled = true;
+                readyBtn.style.display = 'block';
+                answerAreaDiv.style.display = 'none';
+                const statusSpan = card.querySelector('.status-text');
+                statusSpan.innerText = "⏳ ожидание";
+                card.classList.remove('paused-for-player');
+            }
+        }
+        if (getVisibleNumbers().size === 0 && stacks.every(s => s.cards.length === 0)) endGame();
+    }
+
+    function endGame() {
+        if (roundActive) { if (timerInterval) clearInterval(timerInterval); roundActive = false; rollBtn.disabled = false; pauseBtn.disabled = true; isPaused = false; pausedByPlayer = null; }
+        let winner = players.reduce((best, p) => p.score > best.score ? p : best, { score: -Infinity });
+        alert(`Игра завершена! Победитель: ${winner.name} с ${winner.score} очками!`);
+    }
+
+    function updateTimerDisplay() {
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        timerDisplay.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+    }
+
+    function applyDifficulty() {
+        currentDifficulty = difficultySelect.value;
+        const cfg = DIFFICULTY_CONFIG[currentDifficulty];
+        currentRows = cfg.rows;
+        stacks = buildStacks(currentRows);
+        renderTree();
+        if (roundActive) endRound();
+        renderDiceIcons();
+        currentDice = Array(cfg.diceCount).fill(0);
+        updateDiceDisplay();
+        for (let p of players) p.score = 0;
+        renderPlayersList();
+    }
+
+    function renderPlayersList() {
+        playersContainer.innerHTML = '';
+        for (let i = 0; i < players.length; i++) {
+            const p = players[i];
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'player-card';
+            cardDiv.id = `player-card-${i}`;
+            if (isPaused && pausedByPlayer === i) cardDiv.classList.add('paused-for-player');
+
+            const nameSpan = document.createElement('div');
+            nameSpan.className = 'player-name';
+            nameSpan.innerHTML = `<span>🎄 ${p.name}</span> <span class="score">⭐ <span class="score-value">${p.score}</span></span>`;
+            const editBtn = document.createElement('button');
+            editBtn.textContent = '✏️';
+            editBtn.className = 'edit-name-btn';
+            editBtn.onclick = (e) => { e.stopPropagation(); editPlayerName(i); };
+            nameSpan.appendChild(editBtn);
+
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'player-controls';
+
+            const readyBtn = document.createElement('button');
+            readyBtn.textContent = '✅ ГОТОВ';
+            readyBtn.className = 'ready-btn';
+            readyBtn.onclick = () => onReady(i);
+            if (!roundActive) readyBtn.disabled = true;
+
+            const answerArea = document.createElement('div');
+            answerArea.className = 'answer-area';
+            const answerInput = document.createElement('input');
+            answerInput.type = 'text';
+            answerInput.placeholder = 'выражение (2+3*4)';
+            answerInput.className = 'answer-input';
+            const submitBtn = document.createElement('button');
+            submitBtn.textContent = '✅ ПРИНЯТЬ';
+            submitBtn.className = 'submit-answer-btn';
+            submitBtn.onclick = () => submitAnswer(i);
+            answerArea.appendChild(answerInput);
+            answerArea.appendChild(submitBtn);
+
+            const statusSpan = document.createElement('div');
+            statusSpan.className = 'status-text';
+            statusSpan.innerText = roundActive ? "🏃‍♂️ активен" : "⏳ ожидание";
+
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = '❌ Удалить';
+            removeBtn.className = 'remove-btn';
+            removeBtn.onclick = () => removePlayer(i);
+
+            controlsDiv.appendChild(readyBtn);
+            controlsDiv.appendChild(answerArea);
+            controlsDiv.appendChild(statusSpan);
+            controlsDiv.appendChild(removeBtn);
+
+            cardDiv.appendChild(nameSpan);
+            cardDiv.appendChild(controlsDiv);
+            playersContainer.appendChild(cardDiv);
+        }
+        if (players.length === 0) playersContainer.innerHTML = '<div style="padding:15px">Добавьте игроков</div>';
+    }
+
+    function editPlayerName(idx) {
+        let newName = prompt("Введите новое имя:", players[idx].name);
+        if (newName && newName.trim()) {
+            players[idx].name = newName.trim();
+            renderPlayersList();
+        }
+    }
+
+    function removePlayer(idx) {
+        if (players.length <= 1) { alert("Должен быть хотя бы один игрок"); return; }
+        if (roundActive) { alert("Нельзя удалять во время раунда"); return; }
+        players.splice(idx, 1);
+        if (pausedByPlayer !== null && pausedByPlayer >= idx) pausedByPlayer = null;
+        renderPlayersList();
+    }
+
+    function addPlayer() {
+        if (roundActive) { alert("Нельзя добавлять во время раунда"); return; }
+        players.push({ name: `Игрок ${players.length+1}`, score: 0 });
+        renderPlayersList();
+    }
+
+    function init() {
+        setBallSize(100);
+        currentDifficulty = 'hard';
+        currentRows = HARD_ROWS;
+        stacks = buildStacks(currentRows);
+        renderTree();
+        players = [ { name: "Алиса", score: 0 }, { name: "Борис", score: 0 } ];
+        roundActive = false;
+        isPaused = false;
+        pausedByPlayer = null;
+        timeLeft = parseInt(timeSelect.value);
+        updateTimerDisplay();
+        rollBtn.disabled = false;
+        pauseBtn.disabled = true;
+        renderDiceIcons();
+        currentDice = [0,0,0,0];
+        updateDiceDisplay();
+        renderPlayersList();
+        rollBtn.onclick = startRound;
+        addPlayerBtn.onclick = addPlayer;
+        pauseBtn.onclick = toggleManualPause;
+        difficultySelect.onchange = () => { if (roundActive) endRound(); applyDifficulty(); };
+        applyTheme('winter');
+    }
+    init();
+</script>
+</body>
+</html>

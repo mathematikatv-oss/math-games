@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Конь и монеты — расстановка</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23FFB74D'/%3E%3Cpolygon points='50,15 55,35 45,35' fill='%23FFB74D'/%3E%3Ccircle cx='30' cy='40' r='6' fill='%23333'/%3E%3Ccircle cx='70' cy='40' r='6' fill='%23333'/%3E%3Ccircle cx='30' cy='40' r='2' fill='white'/%3E%3Ccircle cx='70' cy='40' r='2' fill='white'/%3E%3Cpath d='M25 55 Q40 75 50 70 Q60 75 75 55' stroke='%23333' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3Cpath d='M45 55 L55 55' stroke='%23333' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
     <style>
         * {
             box-sizing: border-box;
@@ -251,7 +252,7 @@
 <body>
 <div class="game-container" id="gameContainer" style="display: none;">
     <h1>🐎 КОНЬ И МОНЕТЫ 🪙</h1>
-    <div class="sub">поставь коня(ей) так, чтобы они за один ход собрали все монеты</div>
+    <div class="sub">поставь коня так, чтобы за один ход конь мог добраться до любой монетки</div>
 
     <div class="top-panel">
         <div class="level-badge" id="levelDisplay">Уровень 1/10</div>
@@ -580,7 +581,7 @@
         modal.className = 'name-modal';
         modal.innerHTML = `
             <div class="name-card">
-                <h2>🐎 Привет, юный шахматист!</h2>
+                <h2>🐎 Привет, юный решать головоломок!</h2>
                 <p>Как тебя зовут?</p>
                 <input type="text" id="studentNameInput" placeholder="Твоё имя" maxlength="20" autocomplete="off">
                 <button id="startGameBtn">Начать игру</button>

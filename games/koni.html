@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Конь и монеты — расстановка</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #2a5f3a, #0f321f);
+            font-family: 'Segoe UI', 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-container {
+            background: #fef3cf;
+            border-radius: 70px;
+            padding: 20px 25px 30px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.3);
+            border: 2px solid #ffd58c;
+            max-width: 950px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin: 0 0 5px;
+            color: #4a2e1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #7a5a3a;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .top-panel {
+            display: flex;
+            justify-content: space-between;
+            background: #e6d3aa;
+            border-radius: 60px;
+            padding: 8px 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .level-badge {
+            background: #ffb347;
+            padding: 5px 18px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .score {
+            background: #4f6d3c;
+            color: #ffecb3;
+            padding: 5px 18px;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+
+        .student-name {
+            background: #fff0cf;
+            padding: 5px 16px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chessboard {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            background: #dbb87c;
+            border: 5px solid #aa7a4a;
+            border-radius: 20px;
+            overflow: hidden;
+            aspect-ratio: 1 / 1;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            transition: 0.05s linear;
+            background-color: #f0e0b0;
+            border: 1px solid #c29a60;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cell.dark {
+            background-color: #c8a86b;
+        }
+
+        .coin {
+            text-shadow: 0 0 4px gold;
+            font-size: 1.9rem;
+        }
+
+        .knight-placed {
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.3));
+            font-size: 2.2rem;
+        }
+
+        .cell.selected-for-knight {
+            background-color: #ffdd88 !important;
+            box-shadow: inset 0 0 0 3px #ff9900;
+            transform: scale(0.97);
+        }
+
+        .message-area {
+            background: #fff0bf;
+            border-radius: 40px;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            margin: 15px 0;
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #ffb347;
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 8px 22px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 3px 0 0 #a5530e;
+            transition: 0.07s linear;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 0 #a5530e;
+        }
+
+        .stat-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .stat-card {
+            background: #fff7e8;
+            max-width: 500px;
+            width: 90%;
+            border-radius: 60px;
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 3px solid #ffc107;
+        }
+
+        .stat-card h3 {
+            text-align: center;
+            color: #5a3a1a;
+        }
+
+        .stat-entry {
+            background: #f0e1bf;
+            margin: 8px 0;
+            padding: 8px 15px;
+            border-radius: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .close-stat {
+            background: #aa6f3c;
+            color: white;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .name-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .name-card {
+            background: #fff7e8;
+            padding: 30px;
+            border-radius: 70px;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+            border: 3px solid #ffb347;
+        }
+
+        .name-card input {
+            font-size: 1.3rem;
+            padding: 8px;
+            border-radius: 40px;
+            border: 2px solid #cb9e5e;
+            width: 100%;
+            margin: 15px 0;
+            text-align: center;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="gameContainer" style="display: none;">
+    <h1>🐎 КОНЬ И МОНЕТЫ 🪙</h1>
+    <div class="sub">поставь коня(ей) так, чтобы они за один ход собрали все монеты</div>
+
+    <div class="top-panel">
+        <div class="level-badge" id="levelDisplay">Уровень 1/10</div>
+        <div class="score">🏆 Пройдено: <span id="scoreCount">0</span></div>
+        <div class="student-name" id="studentNameDisplay"></div>
+    </div>
+
+    <div class="chessboard" id="board"></div>
+    <div class="message-area" id="gameMessage">✨ Нажми на клетку, чтобы поставить коня. Конь бьёт буквой «Г».</div>
+
+    <div class="controls">
+        <button id="resetLevelBtn">🔄 Сбросить уровень</button>
+        <button id="nextLevelBtn" disabled>⭐ Следующий уровень</button>
+        <button id="showStatsBtn">📊 Статистика</button>
+    </div>
+</div>
+
+<script>
+    // ---------- ШАХМАТЫ 8x8, КОНЬ ----------
+    const KNIGHT_MOVES = [
+        [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+        [1, -2], [1, 2], [2, -1], [2, 1]
+    ];
+
+    // 10 уровней: количество монет (1-5 уровни — 1 конь, 6-10 — 2 коня)
+    const LEVELS_COINS = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7];
+    const LEVELS_KNIGHTS = [1, 1, 1, 1, 1, 2, 2, 2, 2, 2];
+
+    let currentLevel = 0;
+    let coinsPositions = [];
+    let knightsPositions = [];     // массив позиций коней (0-63)
+    let knightsNeeded = 1;
+    let solved = false;
+    let currentStudentName = "";
+    let studentsStats = [];
+
+    // DOM
+    const gameContainer = document.getElementById('gameContainer');
+    const boardDiv = document.getElementById('board');
+    const levelDisplaySpan = document.getElementById('levelDisplay');
+    const scoreCountSpan = document.getElementById('scoreCount');
+    const studentNameDisplay = document.getElementById('studentNameDisplay');
+    const gameMessageDiv = document.getElementById('gameMessage');
+    const resetLevelBtn = document.getElementById('resetLevelBtn');
+    const nextLevelBtn = document.getElementById('nextLevelBtn');
+    const showStatsBtn = document.getElementById('showStatsBtn');
+
+    // ---------- ЛОГИКА КОНЯ ----------
+    function getKnightAttacks(pos) {
+        const row = Math.floor(pos / 8);
+        const col = pos % 8;
+        const attacks = [];
+        for (let [dr, dc] of KNIGHT_MOVES) {
+            const nr = row + dr;
+            const nc = col + dc;
+            if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                attacks.push(nr * 8 + nc);
+            }
+        }
+        return attacks;
+    }
+
+    function canKnightsCoverAll(knights, coins) {
+        const covered = new Set();
+        for (let k of knights) {
+            const attacks = getKnightAttacks(k);
+            for (let a of attacks) covered.add(a);
+        }
+        for (let coin of coins) {
+            if (!covered.has(coin)) return false;
+        }
+        return true;
+    }
+
+    // Генерация решаемого уровня
+    function generateSolvableLevel(coinsCount, knightsCount) {
+        const MAX_ATTEMPTS = 600;
+        for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            // генерируем случайные позиции для коней (уникальные, не на одной клетке)
+            const knights = [];
+            while (knights.length < knightsCount) {
+                const cand = Math.floor(Math.random() * 64);
+                if (!knights.includes(cand)) knights.push(cand);
+            }
+            // собираем все клетки, которые бьют эти кони
+            const allAttacks = new Set();
+            for (let k of knights) {
+                const attacks = getKnightAttacks(k);
+                for (let a of attacks) allAttacks.add(a);
+            }
+            const possibleCoins = Array.from(allAttacks);
+            if (possibleCoins.length < coinsCount) continue;
+            // перемешиваем и выбираем coinsCount монет
+            for (let i = possibleCoins.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [possibleCoins[i], possibleCoins[j]] = [possibleCoins[j], possibleCoins[i]];
+            }
+            const candidateCoins = possibleCoins.slice(0, coinsCount);
+            if (new Set(candidateCoins).size !== coinsCount) continue;
+            // проверяем, что кони бьют все эти монеты
+            if (canKnightsCoverAll(knights, candidateCoins)) {
+                return { coins: candidateCoins, solutionKnights: knights };
+            }
+        }
+        // fallback
+        return generateFallbackLevel(coinsCount, knightsCount);
+    }
+
+    function generateFallbackLevel(coinsCount, knightsCount) {
+        const presets1 = {
+            2: { coins: [9, 22], knights: [12] },
+            3: { coins: [10, 24, 33], knights: [19] },
+            4: { coins: [16, 25, 34, 43], knights: [27] },
+            5: { coins: [18, 27, 36, 45, 54], knights: [35] },
+            6: { coins: [11, 19, 28, 37, 46, 55], knights: [30, 45] },
+            7: { coins: [8, 17, 26, 35, 44, 53, 62], knights: [28, 46] }
+        };
+        let key = Math.min(coinsCount, 7);
+        let preset = presets1[key] || presets1[4];
+        if (knightsCount === 1 && preset.knights.length > 1) preset.knights = [preset.knights[0]];
+        if (knightsCount === 2 && preset.knights.length === 1) preset.knights = [preset.knights[0], preset.knights[0] + 2];
+        return { coins: preset.coins.slice(0, coinsCount), solutionKnights: preset.knights.slice(0, knightsCount) };
+    }
+
+    // Загрузить уровень
+    function loadLevel() {
+        const coinsNeeded = LEVELS_COINS[currentLevel];
+        knightsNeeded = LEVELS_KNIGHTS[currentLevel];
+        const levelData = generateSolvableLevel(coinsNeeded, knightsNeeded);
+        coinsPositions = [...levelData.coins];
+        knightsPositions = [];
+        solved = false;
+        nextLevelBtn.disabled = true;
+        renderBoard();
+        updateMessage(`Уровень ${currentLevel+1}: поставь ${knightsNeeded} коня(ей) так, чтобы они за один ход собрали ${coinsNeeded} монет!`);
+        levelDisplaySpan.innerText = `Уровень ${currentLevel+1}/10`;
+        let completed = currentLevel;
+        scoreCountSpan.innerText = completed;
+    }
+
+    // Попытка поставить коня (клик по клетке)
+    function tryPlaceKnight(pos) {
+        if (solved) {
+            updateMessage("Уровень уже пройден! Иди дальше.");
+            return false;
+        }
+        if (coinsPositions.includes(pos)) {
+            updateMessage("❌ Нельзя ставить коня на монету!");
+            return false;
+        }
+        if (knightsPositions.includes(pos)) {
+            // убираем коня, если кликнули на уже стоящего
+            knightsPositions = knightsPositions.filter(p => p !== pos);
+            renderBoard();
+            updateMessage(`Конь убран. Осталось поставить ${knightsNeeded - knightsPositions.length} коня(ей).`);
+            return false;
+        }
+        if (knightsPositions.length >= knightsNeeded) {
+            updateMessage(`Ты уже поставил ${knightsNeeded} коня(ей). Сбрось уровень, чтобы переставить.`);
+            return false;
+        }
+        // ставим коня
+        knightsPositions.push(pos);
+        renderBoard();
+        if (knightsPositions.length === knightsNeeded) {
+            const success = canKnightsCoverAll(knightsPositions, coinsPositions);
+            if (success) {
+                solved = true;
+                updateMessage(`🎉 ПРАВИЛЬНО! Конь(и) бьют все монеты! 🎉`, true);
+                nextLevelBtn.disabled = false;
+                const completedCount = currentLevel + 1;
+                updateStatsForCurrentStudent(completedCount);
+                scoreCountSpan.innerText = completedCount;
+                if (currentLevel + 1 === 10) {
+                    updateMessage(`🏆 Ты прошёл ВСЕ 10 уровней! Поздравляем! 🏆`, true);
+                }
+                renderBoard();
+                return true;
+            } else {
+                updateMessage(`❌ Не все монеты под боем! Попробуй другую расстановку. Коней можно снимать кликом.`, false);
+                knightsPositions = [];
+                renderBoard();
+                return false;
+            }
+        } else {
+            updateMessage(`🐎 Поставлено ${knightsPositions.length} из ${knightsNeeded} коней. Продолжай.`);
+            return false;
+        }
+    }
+
+    // Отрисовка доски
+    function renderBoard() {
+        boardDiv.innerHTML = '';
+        for (let i = 0; i < 64; i++) {
+            const row = Math.floor(i / 8);
+            const col = i % 8;
+            const isDark = (row + col) % 2 === 1;
+            const cell = document.createElement('div');
+            cell.className = `cell ${isDark ? 'dark' : ''}`;
+            if (coinsPositions.includes(i)) {
+                const coinSpan = document.createElement('span');
+                coinSpan.className = 'coin';
+                coinSpan.textContent = '🪙';
+                cell.appendChild(coinSpan);
+            }
+            if (knightsPositions.includes(i)) {
+                const knightSpan = document.createElement('span');
+                knightSpan.className = 'knight-placed';
+                knightSpan.textContent = '🐎';
+                cell.appendChild(knightSpan);
+                cell.classList.add('selected-for-knight');
+            }
+            cell.addEventListener('click', (function(pos) {
+                return () => {
+                    if (solved) {
+                        updateMessage("Уровень завершён! Переходи к следующему.");
+                        return;
+                    }
+                    tryPlaceKnight(pos);
+                };
+            })(i));
+            boardDiv.appendChild(cell);
+        }
+    }
+
+    function updateMessage(msg, isOk = false) {
+        gameMessageDiv.innerHTML = msg;
+        gameMessageDiv.style.background = isOk ? '#c8e6b5' : '#fff0bf';
+        setTimeout(() => {
+            if (gameMessageDiv.innerHTML === msg && !isOk) gameMessageDiv.style.background = '#fff0bf';
+        }, 2500);
+    }
+
+    function resetCurrentLevel() {
+        const coinsNeeded = LEVELS_COINS[currentLevel];
+        knightsNeeded = LEVELS_KNIGHTS[currentLevel];
+        const levelData = generateSolvableLevel(coinsNeeded, knightsNeeded);
+        coinsPositions = [...levelData.coins];
+        knightsPositions = [];
+        solved = false;
+        nextLevelBtn.disabled = true;
+        renderBoard();
+        updateMessage(`Уровень ${currentLevel+1} сброшен. Поставь ${knightsNeeded} коня(ей) заново.`);
+    }
+
+    function nextLevel() {
+        if (!solved && currentLevel !== 9) {
+            updateMessage("Сначала реши уровень — поставь коня(ей) правильно!");
+            return;
+        }
+        if (currentLevel + 1 < 10) {
+            currentLevel++;
+            loadLevel();
+        } else if (currentLevel + 1 === 10 && solved) {
+            if (confirm("🏆 Ты прошёл все уровни! Начать сначала?")) {
+                currentLevel = 0;
+                loadLevel();
+            }
+        } else {
+            updateMessage("Ты уже на вершине! Молодец!");
+        }
+    }
+
+    // ---------- СТАТИСТИКА ----------
+    function loadStats() {
+        const stored = localStorage.getItem('knightGameStats');
+        if (stored) studentsStats = JSON.parse(stored);
+        else studentsStats = [];
+    }
+    function saveStats() {
+        localStorage.setItem('knightGameStats', JSON.stringify(studentsStats));
+    }
+    function updateStatsForCurrentStudent(completedLevels) {
+        let name = currentStudentName;
+        if (!name) return;
+        const existing = studentsStats.find(s => s.name === name);
+        if (existing) {
+            if (completedLevels > existing.finishedLevels) {
+                existing.finishedLevels = completedLevels;
+                existing.lastLevel = completedLevels;
+                existing.timestamp = new Date().toISOString();
+            }
+        } else {
+            studentsStats.push({
+                name: name,
+                finishedLevels: completedLevels,
+                lastLevel: completedLevels,
+                timestamp: new Date().toISOString()
+            });
+        }
+        saveStats();
+        renderStatsIfModalOpen();
+    }
+    function showStatisticsModal() {
+        const modal = document.createElement('div');
+        modal.className = 'stat-modal';
+        let html = `<div class="stat-card"><h3>📋 Успехи учеников</h3>`;
+        if (studentsStats.length === 0) html += `<p>Пока нет записей.</p>`;
+        else {
+            studentsStats.sort((a, b) => b.finishedLevels - a.finishedLevels);
+            studentsStats.forEach(s => {
+                html += `<div class="stat-entry"><span>${escapeHtml(s.name)}</span><span>⭐ ${s.finishedLevels}/10</span></div>`;
+            });
+        }
+        html += `<button class="close-stat" id="closeStatBtn">Закрыть</button></div>`;
+        modal.innerHTML = html;
+        document.body.appendChild(modal);
+        modal.querySelector('#closeStatBtn').addEventListener('click', () => modal.remove());
+    }
+    function renderStatsIfModalOpen() {
+        const modal = document.querySelector('.stat-modal');
+        if (modal) { modal.remove(); showStatisticsModal(); }
+    }
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // ---------- МОДАЛКА ИМЕНИ ----------
+    function askForName() {
+        const modal = document.createElement('div');
+        modal.className = 'name-modal';
+        modal.innerHTML = `
+            <div class="name-card">
+                <h2>🐎 Привет, юный шахматист!</h2>
+                <p>Как тебя зовут?</p>
+                <input type="text" id="studentNameInput" placeholder="Твоё имя" maxlength="20" autocomplete="off">
+                <button id="startGameBtn">Начать игру</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        const input = modal.querySelector('#studentNameInput');
+        const startBtn = modal.querySelector('#startGameBtn');
+        startBtn.addEventListener('click', () => {
+            let name = input.value.trim();
+            if (name === "") name = "Аноним";
+            currentStudentName = name;
+            studentNameDisplay.innerText = `🧒 ${name}`;
+            modal.remove();
+            gameContainer.style.display = 'block';
+            loadStats();
+            currentLevel = 0;
+            loadLevel();
+            refreshStatsDisplay();
+        });
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') startBtn.click();
+        });
+        input.focus();
+    }
+
+    function refreshStatsDisplay() {
+        const existing = studentsStats.find(s => s.name === currentStudentName);
+        if (existing) scoreCountSpan.innerText = existing.finishedLevels;
+        else scoreCountSpan.innerText = "0";
+    }
+
+    // обработчики
+    resetLevelBtn.addEventListener('click', () => resetCurrentLevel());
+    nextLevelBtn.addEventListener('click', () => nextLevel());
+    showStatsBtn.addEventListener('click', () => showStatisticsModal());
+
+    askForName();
+</script>
+</body>
+</html>
